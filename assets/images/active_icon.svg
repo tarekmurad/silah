@@ -1,0 +1,32 @@
+<svg data-name="Alarm Signa" height="14" id="Alarm_Signa" viewBox="0 0 14 14" width="14" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <clipPath id="clip-path">
+            <rect data-name="Rectangle 1053" fill="none" height="14" id="Rectangle_1053" stroke="#707070"
+                stroke-width="1" width="14" />
+        </clipPath>
+        <clipPath id="clip-path-2">
+            <path d="M0,0,11.817,11.817,23.634,0Z" data-name="Path 3921" fill="none"
+                id="Path_3921" stroke="#707070" stroke-width="1"
+                transform="translate(8.356 0) rotate(45)" />
+        </clipPath>
+    </defs>
+    <g clip-path="url(#clip-path)" data-name="Mask Group 101" id="Mask_Group_101">
+        <g data-name="Group 86302" id="Group_86302" transform="translate(-5.555 -5.849)">
+            <circle cx="2.301" cy="2.301" data-name="Ellipse 53" fill="#fff" id="Ellipse_53"
+                r="2.301" transform="translate(6.785 13.583)" />
+            <g clip-path="url(#clip-path-2)" data-name="Mask Group 100" id="Mask_Group_100"
+                transform="translate(0 0)">
+                <g data-name="Ellipse 54" fill="none" id="Ellipse_54"
+                    stroke="#fff" stroke-width="1" transform="translate(3.333 10.131)">
+                    <circle cx="5.754" cy="5.754" r="5.754" stroke="none" />
+                    <circle cx="5.754" cy="5.754" fill="none" r="5.254" />
+                </g>
+                <g data-name="Ellipse 55" fill="none" id="Ellipse_55"
+                    stroke="#fff" stroke-width="1" transform="translate(-0.12 6.679)">
+                    <circle cx="9.206" cy="9.206" r="9.206" stroke="none" />
+                    <circle cx="9.206" cy="9.206" fill="none" r="8.706" />
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
