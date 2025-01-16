@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../styles/app_colors.dart';
 import '../../styles/app_dimens.dart';
-import 'loader_widget.dart';
+import 'custom_loader.dart';
 
 class ButtonWidget extends StatefulWidget {
   final String labelText;
@@ -11,6 +11,7 @@ class ButtonWidget extends StatefulWidget {
   final VoidCallback onPressed;
   final bool? loading;
   final double? loadingSize;
+  final Color? loaderColor;
   final double? labelTextFontSize;
   final double? buttonRadius;
   final Color? labelColor;
@@ -23,6 +24,7 @@ class ButtonWidget extends StatefulWidget {
     required this.onPressed,
     this.loading,
     this.loadingSize,
+    this.loaderColor,
     this.labelTextFontSize,
     this.labelColor,
     this.buttonRadius,
@@ -77,8 +79,9 @@ class _ButtonWidgetState extends State<ButtonWidget> {
               ),
             ),
             if (widget.loading ?? false)
-              LoaderWidget(
-                size: widget.loadingSize ?? 22.w,
+              CustomLoader(
+                color: widget.loaderColor ?? AppColors.whiteColor,
+                size: 22.w,
               )
             else
               const SizedBox.shrink(),

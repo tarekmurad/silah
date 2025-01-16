@@ -47,7 +47,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
   Future<void> _initializePlayer() async {
     try {
-
       String localPath = '';
       if (Platform.isAndroid) {
         final directory = await getExternalStorageDirectory();

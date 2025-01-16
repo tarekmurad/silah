@@ -65,22 +65,31 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
-                    Positioned.fill(
+                    SizedBox(
+                      height: 275.h,
+                      width: double.infinity,
                       child: SvgPicture.asset(
                         Assets.background,
                         fit: BoxFit.cover,
                       ),
                     ),
-                    Positioned.fill(
-                      child: Container(
-                        height: 275.h,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0x11FFFFFF), Color(0x2204075F)],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
+                    Container(
+                      height: 275.h,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0x0004075F),
+                            Color(0x1104075F),
+                            Color(0xdd04075F)
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(0),
+                          topRight: Radius.circular(0),
+                          bottomLeft: Radius.circular(20.r),
+                          bottomRight: Radius.circular(20.r),
                         ),
                       ),
                     ),
@@ -207,14 +216,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         Text(
                           'Study Archive',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge!
-                              .copyWith(
-                            color: AppColors.primaryColor,
-                            fontSize: 24.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge!.copyWith(
+                                    color: AppColors.primaryColor,
+                                    fontSize: 24.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                         SizedBox(
                           height: 20.h,
@@ -231,7 +238,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.r),
                                   color: AppColors.primary100Color,
-
                                 ),
                                 child: Center(
                                   child: Icon(
@@ -250,10 +256,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                     .textTheme
                                     .titleLarge!
                                     .copyWith(
-                                  color: AppColors.primaryColor,
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                      color: AppColors.primaryColor,
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                               const Spacer(),
                               Icon(
@@ -278,7 +284,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.r),
                                   color: AppColors.primary100Color,
-
                                 ),
                                 child: Center(
                                   child: Icon(
@@ -297,10 +302,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                     .textTheme
                                     .titleLarge!
                                     .copyWith(
-                                  color: AppColors.primaryColor,
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                      color: AppColors.primaryColor,
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                               const Spacer(),
                               Icon(
@@ -310,7 +315,6 @@ class _ProfilePageState extends State<ProfilePage> {
                             ],
                           ),
                         ),
-
                         const Spacer(),
                         BlocListener<ProfileBloc, ProfileState>(
                           bloc: _bloc,

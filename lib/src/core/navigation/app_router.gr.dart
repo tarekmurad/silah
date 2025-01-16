@@ -459,6 +459,71 @@ class SplashRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [TodoCounterPage]
+class TodoCounterRoute extends PageRouteInfo<TodoCounterRouteArgs> {
+  TodoCounterRoute({
+    Key? key,
+    required TodoModel todo,
+    List<PageRouteInfo>? children,
+  }) : super(
+          TodoCounterRoute.name,
+          args: TodoCounterRouteArgs(
+            key: key,
+            todo: todo,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'TodoCounterRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<TodoCounterRouteArgs>();
+      return TodoCounterPage(
+        key: args.key,
+        todo: args.todo,
+      );
+    },
+  );
+}
+
+class TodoCounterRouteArgs {
+  const TodoCounterRouteArgs({
+    this.key,
+    required this.todo,
+  });
+
+  final Key? key;
+
+  final TodoModel todo;
+
+  @override
+  String toString() {
+    return 'TodoCounterRouteArgs{key: $key, todo: $todo}';
+  }
+}
+
+/// generated route for
+/// [TodoPage]
+class TodoRoute extends PageRouteInfo<void> {
+  const TodoRoute({List<PageRouteInfo>? children})
+      : super(
+          TodoRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'TodoRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const TodoPage();
+    },
+  );
+}
+
+/// generated route for
 /// [VerificationPage]
 class VerificationRoute extends PageRouteInfo<VerificationRouteArgs> {
   VerificationRoute({

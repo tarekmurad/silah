@@ -69,4 +69,3 @@ class InteractFavoritesLoadingState extends LibraryState {}
 class InteractFavoritesSucceedState extends LibraryState {}
 
 class InteractFavoritesFailedState extends LibraryState {}
-

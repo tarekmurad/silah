@@ -12,7 +12,7 @@ class Dimens {
 
   /// Radius
   static double smallRadius = 5.r;
-  static double widgetRadius = 16.r;
+  static double widgetRadius = 18.r;
   static double itemRadius = 15.r;
   static double semiCircleRadius = 21.r;
   static double bottomSheetRadius = 30.r;

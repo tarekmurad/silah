@@ -219,7 +219,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                 } else {
                                   print('Permission denied');
                                 }
-                              }, isDownloadItem: false, onFavoritesTab: (Folder , bool ) {  },
+                              },
+                              isDownloadItem: false,
+                              onFavoritesTab: (Folder, bool) {},
                             ),
                           );
                         }

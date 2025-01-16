@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
       SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
     );
 
@@ -46,59 +46,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return AutoTabsScaffold(
-      // appBarBuilder: (context, tabsRouter) {
-      //   return PreferredSize(
-      //     preferredSize: Size.fromHeight(105.h),
-      //     child: Stack(
-      //       children: [
-      //         Container(
-      //           height: 105.h,
-      //           decoration: const BoxDecoration(
-      //             color: AppColors.primaryColor,
-      //             borderRadius: BorderRadius.only(
-      //               topLeft: Radius.circular(0),
-      //               topRight: Radius.circular(0),
-      //               bottomLeft: Radius.circular(20),
-      //               bottomRight: Radius.circular(20),
-      //             ),
-      //           ),
-      //         ),
-      //         Positioned.fill(
-      //           child: SvgPicture.asset(
-      //             Assets.background,
-      //             fit: BoxFit.cover,
-      //           ),
-      //         ),
-      //         Positioned(
-      //           bottom: 20,
-      //           left: 0,
-      //           right: 0,
-      //           child: Column(
-      //             mainAxisSize: MainAxisSize.max,
-      //             children: [
-      //               Center(
-      //                 child: Text(
-      //                   "Calendar",
-      //                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
-      //                         color: AppColors.whiteColor,
-      //                         fontSize: 18.sp,
-      //                         fontWeight: FontWeight.w600,
-      //                       ),
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         )
-      //       ],
-      //     ),
-      //   );
-      //
-      //   // return AppBar(
-      //   //   title: tabsRouter.activeIndex == 0
-      //   //       ? const Text("Home Page")
-      //   //       : const Text("Profile Page"),
-      //   // );
-      // },
       animationDuration: const Duration(milliseconds: 0),
       animationCurve: Curves.easeIn,
       transitionBuilder: (context, child, animation) => FadeTransition(
@@ -108,6 +55,7 @@ class _HomePageState extends State<HomePage> {
       routes: [
         const CalendarRoute(),
         LibraryRoute(),
+        const TodoRoute(),
         const ProfileRoute(),
       ],
       bottomNavigationBuilder: (context, tabsRouter) {
@@ -137,6 +85,13 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               label: 'Library',
+            ),
+            const BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 6),
+                child: Icon(Icons.list_alt),
+              ),
+              label: 'To Do List',
             ),
             const BottomNavigationBarItem(
               icon: Padding(

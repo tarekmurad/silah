@@ -25,10 +25,16 @@ class EndpointUrl {
   static String getMediaFoldersUrl =
       '${AppUrl.baseUrlApi}api/library/getChildren';
   static String searchLibraryUrl = '${AppUrl.baseUrlApi}api/library/finder';
-  static String getFavoritesUrl = '${AppUrl.baseUrlApi}api/favorites/getFavorites';
-  static String interactionFavoritesUrl = '${AppUrl.baseUrlApi}api/favorites/interaction';
+  static String getFavoritesUrl =
+      '${AppUrl.baseUrlApi}api/favorites/getFavorites';
+  static String interactionFavoritesUrl =
+      '${AppUrl.baseUrlApi}api/favorites/interaction';
   static String pushProgressUrl =
       '${AppUrl.baseUrlApi}api/library/pushProgress';
+
+  static String getTasksUrl = '${AppUrl.baseUrlApi}api/tasks/getTasks';
+  static String interactionTasksUrl =
+      '${AppUrl.baseUrlApi}api/tasks/interaction';
 
   /// reset password
   static String forgetPasswordUrl = '${AppUrl.baseUrlApi}auth/forget-password';

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/constants/constants.dart';
 import 'core/navigation/app_router.dart';
+import 'core/styles/app_theme.dart';
 import 'core/utils/global_config.dart';
 import 'injection_container.dart';
 
@@ -36,7 +37,7 @@ class _AppState extends State<App> {
       SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
     );
   }
@@ -72,6 +73,7 @@ class _AppState extends State<App> {
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: context.locale,
+          theme: AppThemeData.lightThemeData,
           routerConfig: _appRouter.config(),
         ),
       ),
