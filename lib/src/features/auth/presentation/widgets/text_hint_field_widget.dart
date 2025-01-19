@@ -43,6 +43,8 @@ class _TextHintFieldWidgetState extends State<TextHintFieldWidget> {
               fontSize: 14.sp,
             ),
         textInputAction: TextInputAction.next,
+        autocorrect: false,
+        enableSuggestions: false,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(
               horizontal: widget.contentPadding ?? 16.w, vertical: 16.h),

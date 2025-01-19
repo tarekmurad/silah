@@ -160,46 +160,44 @@ class _ProfilePageState extends State<ProfilePage> {
                                 SizedBox(
                                   height: 10.h,
                                 ),
-                                if(getIt<GlobalConfig>()
-                                    .currentUser != null)
-                                Row(
-                                  children: [
-                                    Container(
-                                      height: 12.w,
-                                      width: 12.w,
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(1000.r),
-                                        color: AppColors.greenColor,
+                                if (getIt<GlobalConfig>().currentUser != null)
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 12.w,
+                                        width: 12.w,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(1000.r),
+                                          color: AppColors.greenColor,
+                                        ),
                                       ),
-                                    ),
-
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: getIt<GlobalConfig>()
-                                          .currentUser!
-                                          .circles!
-                                          .map((circle) {
-                                        return Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10.w),
-                                          child: Text(
-                                            '${circle.name} Circle',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleLarge!
-                                                .copyWith(
-                                                  color: AppColors.greenColor,
-                                                  fontSize: 15.sp,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ],
-                                ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: getIt<GlobalConfig>()
+                                            .currentUser!
+                                            .circles!
+                                            .map((circle) {
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10.w),
+                                            child: Text(
+                                              '${circle.name} Circle',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleLarge!
+                                                  .copyWith(
+                                                    color: AppColors.greenColor,
+                                                    fontSize: 15.sp,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ],
+                                  ),
                               ],
                             )
                           ],
