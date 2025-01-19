@@ -151,6 +151,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 SizedBox(
                                   height: 10.h,
                                 ),
+                                if(getIt<GlobalConfig>()
+                                    .currentUser != null)
                                 Row(
                                   children: [
                                     Container(
@@ -162,6 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         color: AppColors.greenColor,
                                       ),
                                     ),
+
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,

@@ -47,7 +47,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
   Future<void> _initializePlayer() async {
     try {
-
       String localPath = '';
       if (Platform.isAndroid) {
         final directory = await getExternalStorageDirectory();
@@ -243,12 +242,29 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     ),
                   ),
                   SizedBox(height: 24.h),
-                  Text(
-                    widget.file.name ?? '',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(width: 40.w),
+                        Text(
+                          widget.file.name ?? '',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.settings,
+                            size: 24.w,
+                            color: AppColors.primaryColor,
+                          ),
+                          onPressed: _showSpeedSelector,
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 16.h),
@@ -366,36 +382,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                       ],
                     ),
                   ),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     const Text(
-                  //       'Speed: ',
-                  //       style: TextStyle(color: Colors.black, fontSize: 16),
-                  //     ),
-                  //     DropdownButton<double>(
-                  //       dropdownColor: Colors.white,
-                  //       value: _playbackSpeed,
-                  //       items: [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
-                  //           .map((speed) => DropdownMenuItem(
-                  //                 value: speed,
-                  //                 child: Text(
-                  //                   '${speed}x',
-                  //                   style: const TextStyle(color: Colors.black),
-                  //                 ),
-                  //               ))
-                  //           .toList(),
-                  //       onChanged: (value) {
-                  //         if (value != null) {
-                  //           setState(() {
-                  //             _playbackSpeed = value;
-                  //             _audioPlayer.setSpeed(_playbackSpeed);
-                  //           });
-                  //         }
-                  //       },
-                  //     ),
-                  //   ],
-                  // ),
                 ],
               ),
             ),
@@ -411,5 +397,77 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     final minutes = twoDigits(duration.inMinutes.remainder(60));
     final seconds = twoDigits(duration.inSeconds.remainder(60));
     return '$minutes:$seconds';
+  }
+
+  void _showSpeedSelector() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 20.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.play_circle_outline_rounded,
+                    color: AppColors.primaryColor,
+                    size: 22.w,
+                  ),
+                  SizedBox(width: 10.w),
+                  Text(
+                    'Playback Speed',
+                    style: TextStyle(
+                      fontSize: 16.w,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10.h),
+            ...[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((speed) {
+              return ListTile(
+                title: Row(
+                  children: [
+                    if (speed == _playbackSpeed) ...[
+                      Icon(
+                        Icons.check_rounded,
+                        size: 22.w,
+                        color: AppColors.primaryColor,
+                      ),
+                      SizedBox(width: 8.w),
+                    ],
+                    Text(
+                      '${speed}x',
+                      style: TextStyle(
+                        fontSize: 13.w,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  setState(() {
+                    _playbackSpeed = speed;
+                  });
+                  Navigator.pop(context);
+                  // Set playback speed here
+                  // _audioPlayer.setSpeed(_playbackSpeed);
+                },
+              );
+            }).toList(),
+            SizedBox(height: 10.h),
+          ],
+        );
+      },
+    );
   }
 }
