@@ -12,14 +12,17 @@ import '../../features/auth/presentation/welcome_page.dart';
 import '../../features/calendar/presentation/calendar/calendar_page.dart';
 import '../../features/home/presentation/screens/home_page.dart';
 import '../../features/library/data/models/folder.dart';
-import '../../features/library/presentation/library/library_page.dart';
 import '../../features/library/presentation/library/downloads_page.dart';
 import '../../features/library/presentation/library/favorites_page.dart';
+import '../../features/library/presentation/library/library_page.dart';
 import '../../features/library/presentation/widgets/audio_player.dart';
 import '../../features/library/presentation/widgets/pdf_viewer.dart';
 import '../../features/library/presentation/widgets/video_player.dart';
 import '../../features/profile/presentation/profile/profile_page.dart';
 import '../../features/splash/screens/splash.dart';
+import '../../features/todo/data/models/todo_model.dart';
+import '../../features/todo/presentation/todo/todo_counter_page.dart';
+import '../../features/todo/presentation/todo/todo_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -66,6 +69,7 @@ class AppRouter extends RootStackRouter {
             RedirectRoute(path: '*', redirectTo: ''),
           ],
         ),
+        AutoRoute(page: TodoRoute.page),
         AutoRoute(page: ProfileRoute.page),
       ],
     ),
@@ -74,6 +78,7 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: VideoPlayerRoute.page),
     AutoRoute(page: DownloadsRoute.page),
     AutoRoute(page: FavoritesRoute.page),
+    AutoRoute(page: TodoCounterRoute.page),
   ];
 }
 

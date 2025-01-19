@@ -6,7 +6,7 @@ import 'src/core/utils/l10n.dart';
 import 'src/initialize_app.dart';
 
 Future<void> main() async {
-  await InitializeApp().initApp(Environment.stage);
+  await InitializeApp().initApp(Environment.dev);
 
   runApp(
     EasyLocalization(

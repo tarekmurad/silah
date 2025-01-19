@@ -18,7 +18,6 @@
 /// In order to use this newly created theme or even the colours in it, you would just
 /// `import` this file in your project, anywhere you needed it.
 /// `import 'path/to/theme.dart';`
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,41 +38,41 @@ class AppThemeData {
   static ThemeData themeData(ColorScheme colorScheme, Color focusColor) {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: colorScheme,
+      // colorScheme: colorScheme,
       textTheme: _textTheme,
-      primaryColor: AppColors.grayColor,
-      iconTheme: IconThemeData(color: colorScheme.onPrimary),
-      canvasColor: colorScheme.background,
-      scaffoldBackgroundColor: colorScheme.background,
-      highlightColor: Colors.transparent,
-      focusColor: focusColor,
-      appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.background,
-        elevation: 0,
-        iconTheme: IconThemeData(color: colorScheme.primary),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Color.alphaBlend(
-          _lightFillColor.withOpacity(0.80),
-          _darkFillColor,
-        ),
-        contentTextStyle: _textTheme.bodyMedium!.apply(color: _darkFillColor),
-      ),
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: AppColors.greenColor,
-        selectionColor: AppColors.greenColor.withOpacity(0.4),
-        selectionHandleColor: AppColors.greenColor,
-      ),
-      cupertinoOverrideTheme: const CupertinoThemeData(
-        primaryColor: AppColors.whiteColor,
-      ),
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        },
-      ),
+      primaryColor: AppColors.primaryColor,
+      // iconTheme: IconThemeData(color: colorScheme.onPrimary),
+      // canvasColor: colorScheme.background,
+      // scaffoldBackgroundColor: colorScheme.background,
+      // highlightColor: Colors.transparent,
+      // focusColor: focusColor,
+      // appBarTheme: AppBarTheme(
+      //   backgroundColor: colorScheme.background,
+      //   elevation: 0,
+      //   iconTheme: IconThemeData(color: colorScheme.primary),
+      // ),
+      // snackBarTheme: SnackBarThemeData(
+      //   behavior: SnackBarBehavior.floating,
+      //   backgroundColor: Color.alphaBlend(
+      //     _lightFillColor.withOpacity(0.80),
+      //     _darkFillColor,
+      //   ),
+      //   contentTextStyle: _textTheme.bodyMedium!.apply(color: _darkFillColor),
+      // ),
+      // textSelectionTheme: TextSelectionThemeData(
+      //   cursorColor: AppColors.greenColor,
+      //   selectionColor: AppColors.greenColor.withOpacity(0.4),
+      //   selectionHandleColor: AppColors.greenColor,
+      // ),
+      // cupertinoOverrideTheme: const CupertinoThemeData(
+      //   primaryColor: AppColors.whiteColor,
+      // ),
+      // pageTransitionsTheme: const PageTransitionsTheme(
+      //   builders: {
+      //     TargetPlatform.android: ZoomPageTransitionsBuilder(),
+      //     TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      //   },
+      // ),
     );
   }
 
@@ -116,18 +115,18 @@ class AppThemeData {
   static const _bold = FontWeight.w700;
 
   static final TextTheme _textTheme = TextTheme(
-    displayLarge: GoogleFonts.poppins(fontWeight: _regular, fontSize: 57.sp),
-    displayMedium: GoogleFonts.poppins(fontWeight: _regular, fontSize: 45.sp),
-    displaySmall: GoogleFonts.poppins(fontWeight: _regular, fontSize: 36.sp),
-    headlineMedium: GoogleFonts.poppins(fontWeight: _regular, fontSize: 28.sp),
-    headlineSmall: GoogleFonts.poppins(fontWeight: _regular, fontSize: 24.sp),
-    titleLarge: GoogleFonts.poppins(fontWeight: _medium, fontSize: 22.sp),
-    titleMedium: GoogleFonts.poppins(fontWeight: _medium, fontSize: 16.sp),
-    titleSmall: GoogleFonts.poppins(fontWeight: _medium, fontSize: 14.sp),
-    labelLarge: GoogleFonts.poppins(fontWeight: _medium, fontSize: 14.sp),
-    labelSmall: GoogleFonts.poppins(fontWeight: _medium, fontSize: 11.sp),
-    bodyLarge: GoogleFonts.poppins(fontWeight: _regular, fontSize: 16.sp),
-    bodyMedium: GoogleFonts.poppins(fontWeight: _regular, fontSize: 14.sp),
-    bodySmall: GoogleFonts.poppins(fontWeight: _regular, fontSize: 12.sp),
+    displayLarge: GoogleFonts.poppins(fontWeight: _regular, fontSize: 52.sp),
+    displayMedium: GoogleFonts.poppins(fontWeight: _regular, fontSize: 42.sp),
+    displaySmall: GoogleFonts.poppins(fontWeight: _regular, fontSize: 34.sp),
+    headlineMedium: GoogleFonts.poppins(fontWeight: _regular, fontSize: 26.sp),
+    headlineSmall: GoogleFonts.poppins(fontWeight: _regular, fontSize: 23.sp),
+    titleLarge: GoogleFonts.poppins(fontWeight: _medium, fontSize: 21.sp),
+    titleMedium: GoogleFonts.poppins(fontWeight: _medium, fontSize: 15.sp),
+    titleSmall: GoogleFonts.poppins(fontWeight: _medium, fontSize: 13.sp),
+    labelLarge: GoogleFonts.poppins(fontWeight: _medium, fontSize: 13.sp),
+    labelSmall: GoogleFonts.poppins(fontWeight: _medium, fontSize: 10.sp),
+    bodyLarge: GoogleFonts.poppins(fontWeight: _regular, fontSize: 15.sp),
+    bodyMedium: GoogleFonts.poppins(fontWeight: _regular, fontSize: 13.sp),
+    bodySmall: GoogleFonts.poppins(fontWeight: _regular, fontSize: 11.sp),
   );
 }

@@ -57,12 +57,12 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       final directory = await getExternalStorageDirectory();
       final fileName =
           '${widget.file.name}.${widget.file.mediaFiles?[0].extension}';
-       localPath = '${directory?.path}/$fileName';
+      localPath = '${directory?.path}/$fileName';
     } else if (Platform.isIOS) {
       final directory = await getApplicationDocumentsDirectory();
       final fileName =
           '${widget.file.name}.${widget.file.mediaFiles?[0].extension}';
-       localPath = '${directory.path}/$fileName';
+      localPath = '${directory.path}/$fileName';
     }
 
     if (widget.isDownloadedFile == true) {
@@ -224,7 +224,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             ),
             Expanded(
               child: Center(
-                child: (_videoPlayerController != null && _videoPlayerController!.value.isInitialized &&
+                child: (_videoPlayerController != null &&
+                        _videoPlayerController!.value.isInitialized &&
                         _chewieController
                             .videoPlayerController.value.isInitialized)
                     ? Chewie(controller: _chewieController)

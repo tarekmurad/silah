@@ -7,7 +7,7 @@ part 'media_file.g.dart';
 
 @JsonSerializable()
 @HiveType(typeId: 1)
-class MediaFile extends HiveObject{
+class MediaFile extends HiveObject {
   @JsonKey(name: 'id')
   @HiveField(0)
   String? id;

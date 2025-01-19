@@ -54,7 +54,6 @@ class _LibraryPageState extends State<LibraryPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.whiteColor,
@@ -305,9 +304,7 @@ class _LibraryPageState extends State<LibraryPage> {
                                   print('Permission denied');
                                 }
                               },
-                              onFavoritesTab: (Folder file, bool) {
-
-                              },
+                              onFavoritesTab: (Folder file, bool) {},
                             ),
                           );
                         }

@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:formz/formz.dart';
 
 import '../../../../../core/data/errors/http_error.dart';
+import '../../../../../core/utils/global_config.dart';
+import '../../../../../injection_container.dart';
 import '../../../data/models/email.dart';
 import '../../../data/models/password.dart';
 import '../../../data/repositories/authentication_repository_impl.dart';
@@ -48,6 +50,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     authRepository.saveUserToken(result.data?.token);
     authRepository.saveUserRefreshToken(result.data?.refreshToken);
+    getIt<GlobalConfig>().token = result.data?.token;
 
     if (result.hasDataOnly) {
       emit(state.copyWith(status: FormzSubmissionStatus.success));

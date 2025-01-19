@@ -26,6 +26,9 @@ import 'features/library/presentation/library/bloc/bloc.dart';
 import 'features/profile/data/dataSources/profile_data_source.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/presentation/profile/bloc/bloc.dart';
+import 'features/todo/data/dataSources/todo_data_source.dart';
+import 'features/todo/data/repositories/todo_repository_impl.dart';
+import 'features/todo/presentation/todo/bloc/bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -87,6 +90,12 @@ void setupLocator() {
     ),
   );
 
+  getIt.registerLazySingleton<TodoRepositoryImpl>(
+    () => TodoRepositoryImpl(
+      getIt<TodoDataSourceImpl>(),
+    ),
+  );
+
   /// Data Sources
   getIt.registerLazySingleton<AuthenticationDataSourceImpl>(
     () => AuthenticationDataSourceImpl(
@@ -108,6 +117,12 @@ void setupLocator() {
 
   getIt.registerLazySingleton<ProfileDataSourceImpl>(
     () => ProfileDataSourceImpl(
+      getIt<HttpHelper>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<TodoDataSourceImpl>(
+    () => TodoDataSourceImpl(
       getIt<HttpHelper>(),
     ),
   );
@@ -155,5 +170,9 @@ void setupLocator() {
 
   getIt.registerFactory<ProfileBloc>(
     () => ProfileBloc(getIt<AuthRepositoryImpl>()),
+  );
+
+  getIt.registerFactory<TodoBloc>(
+    () => TodoBloc(getIt<TodoRepositoryImpl>()),
   );
 }
