@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:boilerplate_flutter/src/initialize_app.dart';
 import 'package:flutter/services.dart';
+import 'package:silah_connect/src/initialize_app.dart';
 
 import '../../features/auth/data/models/user_model.dart';
 import '../constants/app_url.dart';

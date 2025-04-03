@@ -13,6 +13,4 @@ class Constants {
   static const arabicLanguage = 'ar';
 
   static const authorization = 'Authorization';
-
-  static const pageSize = 10;
 }

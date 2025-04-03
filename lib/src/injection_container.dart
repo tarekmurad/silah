@@ -1,7 +1,7 @@
-import 'package:boilerplate_flutter/src/features/splash/bloc/bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:silah_connect/src/features/splash/bloc/bloc.dart';
 
 import 'core/data/http_helper.dart';
 import 'core/data/network_info.dart';

@@ -38,41 +38,8 @@ class AppThemeData {
   static ThemeData themeData(ColorScheme colorScheme, Color focusColor) {
     return ThemeData(
       useMaterial3: true,
-      // colorScheme: colorScheme,
       textTheme: _textTheme,
       primaryColor: AppColors.primaryColor,
-      // iconTheme: IconThemeData(color: colorScheme.onPrimary),
-      // canvasColor: colorScheme.background,
-      // scaffoldBackgroundColor: colorScheme.background,
-      // highlightColor: Colors.transparent,
-      // focusColor: focusColor,
-      // appBarTheme: AppBarTheme(
-      //   backgroundColor: colorScheme.background,
-      //   elevation: 0,
-      //   iconTheme: IconThemeData(color: colorScheme.primary),
-      // ),
-      // snackBarTheme: SnackBarThemeData(
-      //   behavior: SnackBarBehavior.floating,
-      //   backgroundColor: Color.alphaBlend(
-      //     _lightFillColor.withOpacity(0.80),
-      //     _darkFillColor,
-      //   ),
-      //   contentTextStyle: _textTheme.bodyMedium!.apply(color: _darkFillColor),
-      // ),
-      // textSelectionTheme: TextSelectionThemeData(
-      //   cursorColor: AppColors.greenColor,
-      //   selectionColor: AppColors.greenColor.withOpacity(0.4),
-      //   selectionHandleColor: AppColors.greenColor,
-      // ),
-      // cupertinoOverrideTheme: const CupertinoThemeData(
-      //   primaryColor: AppColors.whiteColor,
-      // ),
-      // pageTransitionsTheme: const PageTransitionsTheme(
-      //   builders: {
-      //     TargetPlatform.android: ZoomPageTransitionsBuilder(),
-      //     TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      //   },
-      // ),
     );
   }
 

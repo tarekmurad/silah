@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:boilerplate_flutter/src/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:rrule/rrule.dart';
+import 'package:silah_connect/src/injection_container.dart';
 
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/shared_components/widgets/button_widget.dart';

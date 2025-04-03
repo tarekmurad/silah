@@ -44,22 +44,23 @@ class HttpHelper {
     dio.interceptors.add(
       LogInterceptor(
         request: true,
-        responseBody: true,
-        requestBody: true,
         requestHeader: true,
+        requestBody: true,
+        responseHeader: true,
+        responseBody: true,
       ),
     );
 
     dio.interceptors.add(
       InterceptorsWrapper(onRequest:
           (RequestOptions options, RequestInterceptorHandler handler) async {
+        /// api-version
         options.headers['api-version'] = getIt<GlobalConfig>().version;
 
+        /// token
         var token = await _prefsHelper.getUserToken();
-
         if (options.headers.containsKey(Constants.authorization)) {
           options.headers[Constants.authorization] = 'Bearer $token';
-          print(token);
         } else {
           debugPrint('Auth token is null');
         }
@@ -69,15 +70,14 @@ class HttpHelper {
         /// Unauthorized Error
         /// need to refresh token
         if (error.response?.statusCode == 401) {
+          /// refresh token is expired
           if (error.requestOptions.uri.toString().contains('auth/token')) {
-            /// logout and navigate to welcome screen
             _prefsHelper.clearData();
             getIt<AppRouter>().pushAndPopUntil(
               const WelcomeRoute(),
               predicate: (_) => false,
             );
           }
-
           var userRefreshToken = await _prefsHelper.getUserRefreshToken();
           if (userRefreshToken.isNotEmpty) {
             /// get new access token by refresh token
@@ -103,13 +103,11 @@ class HttpHelper {
         /// Forbidden Error
         /// need to login again
         else if (error.response?.statusCode == 403) {
-          /// logout and navigate to welcome screen
           _prefsHelper.clearData();
           getIt<AppRouter>().pushAndPopUntil(
             const WelcomeRoute(),
             predicate: (_) => false,
           );
-
           return;
         } else if (error.response?.statusCode == 406) {
           getIt<AppRouter>().pushAndPopUntil(
@@ -143,7 +141,7 @@ class HttpHelper {
         _prefsHelper.saveUserToken(newToken);
         getIt<GlobalConfig>().token = newToken;
         return newToken;
-      } else {}
+      }
     } catch (e, _) {
       debugPrint(e.toString());
     }
@@ -268,6 +266,61 @@ class HttpHelper {
     );
   }
 
+  Future<Either<BaseError, dynamic>> getStringResponse(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    bool withAuthentication = false,
+    bool isList = false,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    Response response;
+
+    final Map<String, dynamic> headers = {};
+
+    if (withAuthentication) {
+      headers.putIfAbsent(Constants.authorization, () => '');
+    }
+
+    response = await dio.get(
+      url,
+      queryParameters: queryParameters,
+      options: options ?? Options(headers: headers),
+      cancelToken: cancelToken,
+    );
+
+    if (response.statusCode == 200) {
+      return Right(response.data);
+    } else {
+      return Left(CustomError(message: "Received null or invalid response"));
+    }
+  }
+
+  Future<Response> downloadMediaFile(String url, String fileName) async {
+    Directory? directory;
+    String filePath = '';
+
+    if (Platform.isAndroid) {
+      directory = await getExternalStorageDirectory();
+      filePath = '${directory?.path}/$fileName';
+    } else if (Platform.isIOS) {
+      directory = await getApplicationDocumentsDirectory();
+      filePath = '${directory.path}/$fileName';
+    }
+
+    final Map<String, dynamic> headers = {};
+    headers.putIfAbsent(Constants.authorization, () => '');
+
+    final Response response = await dio.download(
+      url,
+      filePath,
+      options: Options(headers: headers),
+    );
+
+    return response;
+  }
+
   Future<Either<BaseError, dynamic>> sendRequest({
     required HttpMethod method,
     required String url,
@@ -299,8 +352,7 @@ class HttpHelper {
             url,
             data: dataString ?? data,
             queryParameters: queryParameters,
-            options: options ??
-                Options(headers: headers, contentType: "application/json"),
+            options: options ?? Options(headers: headers),
             cancelToken: cancelToken,
           );
           break;
@@ -324,65 +376,54 @@ class HttpHelper {
           break;
       }
 
-      var responseData;
-      if (response.data != null) {
-        responseData =
-            (json.decode(response.data as String) as Map<String, dynamic>);
+      if (response.data == null) {
+        return Left(CustomError(message: "Null JSON response in API provider"));
       }
 
-      if (responseData["code"] != -1) {
-        try {
-          var responseModel;
+      final responseData =
+          json.decode(response.data as String) as Map<String, dynamic>;
 
-          if (isList) {
-            responseModel = ListResponse.fromJson(responseData);
-          } else {
-            responseModel = ObjectResponse.fromJson(responseData);
-          }
-          return Right(responseModel);
-        } catch (e, stack) {
-          debugPrint('Error');
-          debugPrint(e.toString());
-          debugPrint(stack.toString());
-          return Left(CustomError(message: e.toString()));
-        }
-      } else if (responseData["code"] == -1) {
+      if (responseData["code"] == -1) {
         return Left(CustomError(message: responseData["message"]));
-      } else {
-        return Left(CustomError(message: "Null Json response in api provider"));
+      }
+
+      try {
+        final responseModel = isList
+            ? ListResponse.fromJson(responseData)
+            : ObjectResponse.fromJson(responseData);
+
+        return Right(responseModel);
+      } catch (e, stack) {
+        debugPrint("Parsing Error: $e");
+        debugPrint(stack.toString());
+        return Left(CustomError(message: e.toString()));
       }
     }
 
     /// Handling errors
     on DioException catch (e) {
-      debugPrint("e.message");
-      debugPrint(e.message);
+      debugPrint("DioException: ${e.message}");
       return Left(_handleDioError(e));
-    }
-
-    /// Couldn't reach out the server
-    on SocketException catch (e, stacktrace) {
-      debugPrint(e.message);
+    } on SocketException catch (e, stacktrace) {
+      debugPrint("SocketException: ${e.message}");
       debugPrint(stacktrace.toString());
       return Left(SocketError());
+    } catch (e) {
+      debugPrint("Unexpected Error: $e");
+      return Left(CustomError(message: e.toString()));
     }
   }
 
   static BaseError _handleDioError(DioException error) {
-    var details;
-    if (error.response?.data != null) {
-      var response =
-          (json.decode(error.response?.data as String) as Map<String, dynamic>);
-      if (response['details'] != null) {
-        details = response['details'][0];
-      }
-    }
+    final response = error.response?.data != null
+        ? json.decode(error.response?.data as String) as Map<String, dynamic>
+        : null;
+    final details = response?['details'][0] != null ? response!['details'][0] : null;
+    final message = response?['message'];
 
-    if (error.type == DioExceptionType.unknown ||
-        error.type == DioExceptionType.badResponse) {
-      if (error.error is SocketException) {
-        return SocketError();
-      } else if (error.type == DioExceptionType.badResponse) {
+    switch (error.type) {
+      case DioExceptionType.unknown:
+      case DioExceptionType.badResponse:
         switch (error.response!.statusCode) {
           case 400:
             return BadRequestError(message: details);
@@ -395,49 +436,23 @@ class HttpHelper {
           case 409:
             return ConflictError();
           case 500:
-            if (error.response?.data != null) {
-              var response = (json.decode(error.response?.data as String)
-                  as Map<String, dynamic>);
-              if (response['message'] != null) {
-                var message = response['message'];
-                return CustomError(message: message);
-              }
-            }
-
-            return InternalServerError();
+            return message != null
+                ? CustomError(message: message)
+                : InternalServerError();
           default:
             return HttpError();
         }
-      }
-    } else if (error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.sendTimeout ||
-        error.type == DioExceptionType.receiveTimeout) {
-      return TimeoutError();
-    } else if (error.type == DioExceptionType.cancel) {
-      return CancelError();
+
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return TimeoutError();
+
+      case DioExceptionType.cancel:
+        return CancelError();
+
+      default:
+        return UnknownError();
     }
-    return UnknownError();
-  }
-
-  Future<Response> downloadMediaFile(String url, String fileName) async {
-    String filePath = '';
-    if (Platform.isAndroid) {
-      final directory = await getExternalStorageDirectory();
-      filePath = '${directory?.path}/$fileName';
-    } else if (Platform.isIOS) {
-      final directory = await getApplicationDocumentsDirectory();
-      filePath = '${directory.path}/$fileName';
-    }
-
-    final Map<String, dynamic> headers = {};
-    headers.putIfAbsent(Constants.authorization, () => '');
-
-    final Response response = await dio.download(
-      url,
-      filePath,
-      options: Options(headers: headers),
-    );
-
-    return response;
   }
 }

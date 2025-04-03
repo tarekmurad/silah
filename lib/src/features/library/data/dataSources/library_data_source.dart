@@ -102,4 +102,18 @@ class LibraryDataSourceImpl {
       (data) => Right(LibraryItem.fromJson(data.data!)),
     );
   }
+
+  Future<Either<BaseError, String>>? getSubtitle(
+      String file) async {
+    final response = await _httpHelper.getStringResponse(
+      file,
+      withAuthentication: true,
+    );
+
+    return response.fold(
+          (error) => Left(error),
+          (data) => Right(data),
+    );
+  }
+
 }

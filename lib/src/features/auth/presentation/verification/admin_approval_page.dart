@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:boilerplate_flutter/src/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:silah_connect/src/injection_container.dart';
 
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/styles/app_colors.dart';

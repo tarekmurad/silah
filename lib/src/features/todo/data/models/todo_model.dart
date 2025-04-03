@@ -1,7 +1,7 @@
 library calendar;
 
-import 'package:boilerplate_flutter/src/features/todo/data/models/user_task_interaction_model.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:silah_connect/src/features/todo/data/models/user_task_interaction_model.dart';
 
 import '../../../auth/data/models/role_model.dart';
 import 'goal_folder_model.dart';

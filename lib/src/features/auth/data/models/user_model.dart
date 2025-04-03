@@ -1,7 +1,7 @@
 library user;
 
-import 'package:boilerplate_flutter/src/features/auth/data/models/role_model.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:silah_connect/src/features/auth/data/models/role_model.dart';
 
 part 'user_model.g.dart';
 

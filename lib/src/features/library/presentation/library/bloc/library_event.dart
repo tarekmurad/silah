@@ -49,3 +49,13 @@ class InteractFavorites extends LibraryEvent {
     required this.file,
   });
 }
+
+class GetSubtitle extends LibraryEvent {
+  final Folder folder;
+
+  GetSubtitle({
+    required this.folder,
+  });
+}
+
+

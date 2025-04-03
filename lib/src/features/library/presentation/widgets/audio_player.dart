@@ -16,6 +16,21 @@ import '../../../../injection_container.dart';
 import '../../data/models/folder.dart';
 import '../library/bloc/bloc.dart';
 
+class AudioService {
+  static final AudioService _instance = AudioService._internal();
+
+  factory AudioService() => _instance;
+
+  late AudioPlayer audioPlayer;
+  bool isInitialized = false;
+
+  AudioService._internal() {
+    audioPlayer = AudioPlayer();
+  }
+}
+
+final audioService = AudioService();
+
 @RoutePage()
 class AudioPlayerPage extends StatefulWidget {
   final Folder file;
@@ -32,6 +47,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   late LibraryBloc _bloc;
 
   late AudioPlayer _audioPlayer;
+
   bool isPlaying = false;
 
   double _playbackSpeed = 1.0;
@@ -40,9 +56,14 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   void initState() {
     super.initState();
     _bloc = getIt<LibraryBloc>();
-    _audioPlayer = AudioPlayer();
-    _initializePlayer();
-    _listenToProgress();
+
+    _audioPlayer = audioService.audioPlayer;
+
+    if (!audioService.isInitialized) {
+      _initializePlayer();
+      _listenToProgress();
+      audioService.isInitialized = true;
+    }
   }
 
   Future<void> _initializePlayer() async {
@@ -67,6 +88,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             tag: MediaItem(
               id: widget.file.id ?? '',
               title: widget.file.name ?? '',
+              displayDescription: widget.file.desc ?? '',
             ),
           ),
           preload: true,
@@ -83,6 +105,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             tag: MediaItem(
               id: widget.file.id ?? '',
               title: widget.file.name ?? '',
+              displayDescription: widget.file.desc ?? '',
             ),
           ),
           preload: true,
@@ -104,10 +127,9 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     }
   }
 
-  int? _lastSentSecond; // The last second for which progress was sent
-  int? _lastSentProgress; // The last progress percentage that was sent
-  bool _isAudioInitialized =
-      false; // Flag to track if audio has been initialized
+  int? _lastSentSecond;
+  int? _lastSentProgress;
+  bool _isAudioInitialized = false;
 
   void _listenToProgress() {
     _audioPlayer.positionStream.listen((position) {
@@ -156,7 +178,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    // _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -459,11 +481,9 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     _playbackSpeed = speed;
                   });
                   Navigator.pop(context);
-                  // Set playback speed here
-                  // _audioPlayer.setSpeed(_playbackSpeed);
                 },
               );
-            }).toList(),
+            }),
             SizedBox(height: 10.h),
           ],
         );

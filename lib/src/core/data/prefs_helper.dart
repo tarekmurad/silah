@@ -20,8 +20,6 @@ class PrefsHelper {
     return prefsMap;
   }
 
-  ///
-
   Future<String?> getString(String key) async {
     final sharedPreferences = await _getPrefs();
     return sharedPreferences.getString(key);

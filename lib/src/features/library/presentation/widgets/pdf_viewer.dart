@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../../../core/constants/app_url.dart';
+import '../../../../core/shared_components/widgets/custom_loader.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/assets.dart';
 import '../../../../core/utils/global_config.dart';
@@ -160,7 +161,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
                   ),
                 if (isLoading)
                   const Center(
-                    child: CircularProgressIndicator(),
+                    child: CustomLoader(),
                   ),
               ],
             ),

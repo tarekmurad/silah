@@ -1,19 +1,19 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:boilerplate_flutter/src/injection_container.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:silah_connect/src/injection_container.dart';
 
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/shared_components/widgets/custom_loader.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/app_dimens.dart';
 import '../../../../core/styles/assets.dart';
-import '../../data/models/folder.dart';
 import '../widgets/media_list_view.dart';
 import 'bloc/bloc.dart';
 
@@ -153,21 +153,17 @@ class _LibraryPageState extends State<LibraryPage> {
                         height: Dimens.buttonHeight,
                         child: TextField(
                           onChanged: (query) {
-                            // Avoid redundant calls if the query is the same as the last one
                             if (query == _lastQuery) return;
                             _lastQuery = query;
 
-                            // Clear previous search if the query is empty
                             if (query.isEmpty) {
                               _debounce?.cancel();
                               _bloc.add(GetLibrary(parentId: null));
                             } else {
-                              // Cancel any ongoing debounce
                               if (_debounce?.isActive ?? false) {
                                 _debounce!.cancel();
                               }
 
-                              // Create a new debounce for the search API call
                               _debounce =
                                   Timer(const Duration(milliseconds: 500), () {
                                 _bloc.add(SearchLibrary(searchText: query));
@@ -258,54 +254,34 @@ class _LibraryPageState extends State<LibraryPage> {
                           );
                         } else {
                           return Expanded(
-                            child: MediaListView(
-                              items: state.folders,
-                              isDownloadItem: false,
-                              onTab: (item) {
-                                switch (item.type) {
-                                  case 'FOLDER':
-                                    context.pushRoute(LibraryRoute(
-                                        folderId: item.id,
-                                        folderName: item.name));
-
-                                  case 'VIDEO':
-                                    context.router.push(
-                                      VideoPlayerRoute(
-                                        file: item,
+                            child: Platform.isIOS
+                                ? CustomScrollView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    slivers: [
+                                      CupertinoSliverRefreshControl(
+                                        onRefresh: () async {
+                                          _bloc.add(GetLibrary(
+                                              parentId: widget.folderId));
+                                        },
                                       ),
-                                    );
-
-                                  case 'AUDIO':
-                                    context.router.push(
-                                      AudioPlayerRoute(
-                                        file: item,
+                                      SliverToBoxAdapter(
+                                        child: buildList(state),
                                       ),
-                                    );
-
-                                  case 'PDF':
-                                    context.router.push(
-                                      PdfViewerRoute(
-                                        file: item,
-                                      ),
-                                    );
-                                }
-                              },
-                              onDownloadTab: (file) async {
-                                if (await Permission.storage
-                                        .request()
-                                        .isGranted ||
-                                    await Permission
-                                        .manageExternalStorage.isGranted ||
-                                    await Permission.mediaLibrary
-                                        .request()
-                                        .isGranted) {
-                                  _bloc.add(DownloadFile(file: file));
-                                } else {
-                                  print('Permission denied');
-                                }
-                              },
-                              onFavoritesTab: (Folder file, bool) {},
-                            ),
+                                    ],
+                                  )
+                                : RefreshIndicator(
+                                    onRefresh: () async {
+                                      _bloc.add(GetLibrary(
+                                          parentId: widget.folderId));
+                                    },
+                                    color: AppColors.primaryColor,
+                                    child: SingleChildScrollView(
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      child: buildList(state),
+                                    ),
+                                  ),
                           );
                         }
                       } else {
@@ -322,6 +298,41 @@ class _LibraryPageState extends State<LibraryPage> {
           ],
         ),
       ),
+    );
+  }
+
+  buildList(state) {
+    return MediaListView(
+      items: state.folders,
+      isDownloadItem: false,
+      onTab: (item) {
+        switch (item.type) {
+          case 'FOLDER':
+            context.pushRoute(
+                LibraryRoute(folderId: item.id, folderName: item.name));
+
+          case 'VIDEO':
+            context.router.push(
+              VideoPlayerRoute(
+                file: item,
+              ),
+            );
+
+          case 'AUDIO':
+            context.router.push(
+              AudioPlayerRoute(
+                file: item,
+              ),
+            );
+
+          case 'PDF':
+            context.router.push(
+              PdfViewerRoute(
+                file: item,
+              ),
+            );
+        }
+      },
     );
   }
 }

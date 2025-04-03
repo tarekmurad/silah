@@ -69,3 +69,17 @@ class InteractFavoritesLoadingState extends LibraryState {}
 class InteractFavoritesSucceedState extends LibraryState {}
 
 class InteractFavoritesFailedState extends LibraryState {}
+
+/// Get Subtitle
+
+class GetSubtitleLoadingState extends LibraryState {}
+
+class GetSubtitleSucceedState extends LibraryState {
+  final String subtitle;
+
+  GetSubtitleSucceedState({
+    required this.subtitle,
+  });
+}
+
+class GetSubtitleFailedState extends LibraryState {}

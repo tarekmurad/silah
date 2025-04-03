@@ -64,4 +64,15 @@ class LibraryRepositoryImpl {
       return Result(error: (response as Left<BaseError, LibraryItem>).value);
     }
   }
+
+  Future<Result<BaseError, String>> getSubtitle(
+      String file) async {
+    final response = await _libraryDataSource.getSubtitle(file);
+    if (response!.isRight()) {
+      return Result(data: (response as Right<BaseError, String>).value);
+    } else {
+      return Result(error: (response as Left<BaseError, String>).value);
+    }
+  }
+
 }

@@ -34,6 +34,8 @@ class AppRouter extends RootStackRouter {
   @override
   final List<AutoRoute> routes = [
     AutoRoute(page: SplashRoute.page, initial: true),
+
+    /// auth
     AutoRoute(page: WelcomeRoute.page),
     AutoRoute(page: LoginRoute.page),
     AutoRoute(page: SignUpRoute.page),
@@ -42,6 +44,8 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: VerifyForgetPasswordRoute.page),
     AutoRoute(page: ResetPasswordRoute.page),
     AutoRoute(page: AdminApprovalRoute.page),
+
+    /// home
     AutoRoute(
       page: HomeRoute.page,
       path: '/',
@@ -73,11 +77,15 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: ProfileRoute.page),
       ],
     ),
+
+    /// lib
     AutoRoute(page: AudioPlayerRoute.page),
     AutoRoute(page: PdfViewerRoute.page),
     AutoRoute(page: VideoPlayerRoute.page),
     AutoRoute(page: DownloadsRoute.page),
     AutoRoute(page: FavoritesRoute.page),
+
+    /// tasks
     AutoRoute(page: TodoCounterRoute.page),
   ];
 }

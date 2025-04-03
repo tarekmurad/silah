@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
-import 'package:boilerplate_flutter/src/injection_container.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:silah_connect/src/injection_container.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -114,37 +117,32 @@ class _CalendarPageState extends State<CalendarPage> {
                         );
                       } else if (state is GetCalendarSchedulesSucceedState) {
                         return Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            child: SizedBox(
-                              height: 600.h,
-                              child: CustomCalendarWidget(
-                                dataSource: state.schedules,
-                                onTap: (details) async {
-                                  if (details.targetElement ==
-                                      CalendarElement.appointment) {
-                                    final appointment =
-                                        details.appointments!.first;
-                                    final zoomLink = appointment.link;
-
-                                    if (zoomLink != null &&
-                                        zoomLink.isNotEmpty) {
-                                      final Uri url = Uri.parse(zoomLink);
-                                      await launchUrl(url,
-                                          mode: LaunchMode.externalApplication);
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                "No link available for this meeting.")),
-                                      );
-                                    }
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
+                          child: Platform.isIOS
+                              ? CustomScrollView(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  slivers: [
+                                    CupertinoSliverRefreshControl(
+                                      onRefresh: () async {
+                                        _bloc.add(GetCalendarSchedules());
+                                      },
+                                    ),
+                                    SliverToBoxAdapter(
+                                      child: buildCalendar(state),
+                                    ),
+                                  ],
+                                )
+                              : RefreshIndicator(
+                                  onRefresh: () async {
+                                    _bloc.add(GetCalendarSchedules());
+                                  },
+                                  color: AppColors.primaryColor,
+                                  child: SingleChildScrollView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    child: buildCalendar(state),
+                                  ),
+                                ),
                         );
                       } else {
                         return const SizedBox();
@@ -155,6 +153,34 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  buildCalendar(GetCalendarSchedulesSucceedState state) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: SizedBox(
+        height: 600.h,
+        child: CustomCalendarWidget(
+          dataSource: state.schedules,
+          onTap: (details) async {
+            if (details.targetElement == CalendarElement.appointment) {
+              final appointment = details.appointments!.first;
+              final zoomLink = appointment.link;
+
+              if (zoomLink != null && zoomLink.isNotEmpty) {
+                final Uri url = Uri.parse(zoomLink);
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text("No link available for this meeting.")),
+                );
+              }
+            }
+          },
         ),
       ),
     );

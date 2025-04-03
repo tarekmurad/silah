@@ -139,6 +139,7 @@ class CustomCalendarWidget extends StatelessWidget {
           ),
         ),
         dayFormat: 'EE',
+
         agendaItemHeight: 56.h,
         navigationDirection: MonthNavigationDirection.vertical,
         appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,

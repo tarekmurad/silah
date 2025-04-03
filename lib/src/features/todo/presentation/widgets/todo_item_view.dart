@@ -1,8 +1,8 @@
-import 'package:boilerplate_flutter/src/features/todo/data/models/todo_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:rrule/rrule.dart';
+import 'package:silah_connect/src/features/todo/data/models/todo_model.dart';
 
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/assets.dart';

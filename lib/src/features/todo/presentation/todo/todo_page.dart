@@ -1,11 +1,14 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
-import 'package:boilerplate_flutter/src/injection_container.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:silah_connect/src/injection_container.dart';
 
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/shared_components/widgets/custom_loader.dart';
@@ -222,226 +225,32 @@ class _TodoPageState extends State<TodoPage> {
                         );
                       } else if (state is GetTodoListSucceedState) {
                         return Expanded(
-                          child: SingleChildScrollView(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 20.h,
+                          child: Platform.isIOS
+                              ? CustomScrollView(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  slivers: [
+                                    CupertinoSliverRefreshControl(
+                                      onRefresh: () async {
+                                        _bloc.add(GetTodoList());
+                                      },
+                                    ),
+                                    SliverToBoxAdapter(
+                                      child: buildContent(state),
+                                    ),
+                                  ],
+                                )
+                              : RefreshIndicator(
+                                  onRefresh: () async {
+                                    _bloc.add(GetTodoList());
+                                  },
+                                  color: AppColors.primaryColor,
+                                  child: SingleChildScrollView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    child: buildContent(state),
                                   ),
-                                  if (state.dailyTasks.isNotEmpty) ...[
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    Text(
-                                      "Today’s tasks",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge!
-                                          .copyWith(
-                                            color: AppColors.primaryColor,
-                                            fontSize: 20.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    ListView.builder(
-                                      itemCount: state.dailyTasks.length,
-                                      shrinkWrap: true,
-                                      padding: EdgeInsets.zero,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        final item = state.dailyTasks[index];
-                                        return TodoItemView(
-                                          item: item,
-                                          onTab: (TodoModel item) async {
-                                            final bool? result = await context
-                                                .router
-                                                .push(TodoCounterRoute(
-                                                    todo: item));
-
-                                            if (result != null) {
-                                              if (result) {
-                                                // Trigger your desired action if `true` is returned
-                                                print('Todo was updated.');
-                                                _bloc.add(GetTodoList());
-                                              } else {
-                                                // Handle `false` return value
-                                                print('Todo was not updated.');
-                                              }
-                                            } else {
-                                              // Handle the case where no value was returned
-                                              print('No value returned.');
-                                            }
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                  if (state.weeklyTasks.isNotEmpty) ...[
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    Text(
-                                      "Weekly tasks",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge!
-                                          .copyWith(
-                                            color: AppColors.primaryColor,
-                                            fontSize: 20.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    ListView.builder(
-                                      itemCount: state.weeklyTasks.length,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      padding: EdgeInsets.zero,
-                                      itemBuilder: (context, index) {
-                                        final item = state.weeklyTasks[index];
-                                        return TodoItemView(
-                                          item: item,
-                                          onTab: (TodoModel item) async {
-                                            final bool? result = await context
-                                                .router
-                                                .push(TodoCounterRoute(
-                                                    todo: item));
-
-                                            if (result != null) {
-                                              if (result) {
-                                                // Trigger your desired action if `true` is returned
-                                                print('Todo was updated.');
-                                                _bloc.add(GetTodoList());
-                                              } else {
-                                                // Handle `false` return value
-                                                print('Todo was not updated.');
-                                              }
-                                            } else {
-                                              // Handle the case where no value was returned
-                                              print('No value returned.');
-                                            }
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                  if (state.monthlyTasks.isNotEmpty) ...[
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    Text(
-                                      "Monthly tasks",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge!
-                                          .copyWith(
-                                            color: AppColors.primaryColor,
-                                            fontSize: 20.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    ListView.builder(
-                                      itemCount: state.monthlyTasks.length,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      padding: EdgeInsets.zero,
-                                      itemBuilder: (context, index) {
-                                        final item = state.monthlyTasks[index];
-                                        return TodoItemView(
-                                          item: item,
-                                          onTab: (TodoModel item) async {
-                                            final bool? result = await context
-                                                .router
-                                                .push(TodoCounterRoute(
-                                                    todo: item));
-
-                                            if (result != null) {
-                                              if (result) {
-                                                // Trigger your desired action if `true` is returned
-                                                print('Todo was updated.');
-                                                _bloc.add(GetTodoList());
-                                              } else {
-                                                // Handle `false` return value
-                                                print('Todo was not updated.');
-                                              }
-                                            } else {
-                                              // Handle the case where no value was returned
-                                              print('No value returned.');
-                                            }
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                  if (state.yearlyTasks.isNotEmpty) ...[
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    Text(
-                                      "Yearly tasks",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge!
-                                          .copyWith(
-                                            color: AppColors.primaryColor,
-                                            fontSize: 20.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    ListView.builder(
-                                      itemCount: state.yearlyTasks.length,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      padding: EdgeInsets.zero,
-                                      itemBuilder: (context, index) {
-                                        final item = state.yearlyTasks[index];
-                                        return TodoItemView(
-                                          item: item,
-                                          onTab: (TodoModel item) async {
-                                            final bool? result = await context
-                                                .router
-                                                .push(TodoCounterRoute(
-                                                    todo: item));
-
-                                            if (result != null) {
-                                              if (result) {
-                                                // Trigger your desired action if `true` is returned
-                                                print('Todo was updated.');
-                                                _bloc.add(GetTodoList());
-                                              } else {
-                                                // Handle `false` return value
-                                                print('Todo was not updated.');
-                                              }
-                                            } else {
-                                              // Handle the case where no value was returned
-                                              print('No value returned.');
-                                            }
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                  SizedBox(
-                                    height: 20.h,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                ),
                         );
                       } else {
                         return const SizedBox();
@@ -470,5 +279,206 @@ class _TodoPageState extends State<TodoPage> {
       default:
         return 'th';
     }
+  }
+
+  buildContent(state) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 20.h,
+          ),
+          if (state.dailyTasks.isNotEmpty) ...[
+            SizedBox(
+              height: 10.h,
+            ),
+            Text(
+              "Today’s tasks",
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: AppColors.primaryColor,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            SizedBox(
+              height: 10.h,
+            ),
+            ListView.builder(
+              itemCount: state.dailyTasks.length,
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final item = state.dailyTasks[index];
+                return TodoItemView(
+                  item: item,
+                  onTab: (TodoModel item) async {
+                    final bool? result =
+                        await context.router.push(TodoCounterRoute(todo: item));
+
+                    if (result != null) {
+                      if (result) {
+                        // Trigger your desired action if `true` is returned
+                        print('Todo was updated.');
+                        _bloc.add(GetTodoList());
+                      } else {
+                        // Handle `false` return value
+                        print('Todo was not updated.');
+                      }
+                    } else {
+                      // Handle the case where no value was returned
+                      print('No value returned.');
+                    }
+                  },
+                );
+              },
+            ),
+          ],
+          if (state.weeklyTasks.isNotEmpty) ...[
+            SizedBox(
+              height: 10.h,
+            ),
+            Text(
+              "Weekly tasks",
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: AppColors.primaryColor,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            SizedBox(
+              height: 10.h,
+            ),
+            ListView.builder(
+              itemCount: state.weeklyTasks.length,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              itemBuilder: (context, index) {
+                final item = state.weeklyTasks[index];
+                return TodoItemView(
+                  item: item,
+                  onTab: (TodoModel item) async {
+                    final bool? result =
+                        await context.router.push(TodoCounterRoute(todo: item));
+
+                    if (result != null) {
+                      if (result) {
+                        // Trigger your desired action if `true` is returned
+                        print('Todo was updated.');
+                        _bloc.add(GetTodoList());
+                      } else {
+                        // Handle `false` return value
+                        print('Todo was not updated.');
+                      }
+                    } else {
+                      // Handle the case where no value was returned
+                      print('No value returned.');
+                    }
+                  },
+                );
+              },
+            ),
+          ],
+          if (state.monthlyTasks.isNotEmpty) ...[
+            SizedBox(
+              height: 10.h,
+            ),
+            Text(
+              "Monthly tasks",
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: AppColors.primaryColor,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            SizedBox(
+              height: 10.h,
+            ),
+            ListView.builder(
+              itemCount: state.monthlyTasks.length,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              itemBuilder: (context, index) {
+                final item = state.monthlyTasks[index];
+                return TodoItemView(
+                  item: item,
+                  onTab: (TodoModel item) async {
+                    final bool? result =
+                        await context.router.push(TodoCounterRoute(todo: item));
+
+                    if (result != null) {
+                      if (result) {
+                        // Trigger your desired action if `true` is returned
+                        print('Todo was updated.');
+                        _bloc.add(GetTodoList());
+                      } else {
+                        // Handle `false` return value
+                        print('Todo was not updated.');
+                      }
+                    } else {
+                      // Handle the case where no value was returned
+                      print('No value returned.');
+                    }
+                  },
+                );
+              },
+            ),
+          ],
+          if (state.yearlyTasks.isNotEmpty) ...[
+            SizedBox(
+              height: 10.h,
+            ),
+            Text(
+              "Yearly tasks",
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: AppColors.primaryColor,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            SizedBox(
+              height: 10.h,
+            ),
+            ListView.builder(
+              itemCount: state.yearlyTasks.length,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              itemBuilder: (context, index) {
+                final item = state.yearlyTasks[index];
+                return TodoItemView(
+                  item: item,
+                  onTab: (TodoModel item) async {
+                    final bool? result =
+                        await context.router.push(TodoCounterRoute(todo: item));
+
+                    if (result != null) {
+                      if (result) {
+                        // Trigger your desired action if `true` is returned
+                        print('Todo was updated.');
+                        _bloc.add(GetTodoList());
+                      } else {
+                        // Handle `false` return value
+                        print('Todo was not updated.');
+                      }
+                    } else {
+                      // Handle the case where no value was returned
+                      print('No value returned.');
+                    }
+                  },
+                );
+              },
+            ),
+          ],
+          SizedBox(
+            height: 200.h,
+          ),
+        ],
+      ),
+    );
   }
 }

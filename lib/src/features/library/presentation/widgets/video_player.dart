@@ -2,13 +2,18 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:chewie/chewie.dart';
+import 'package:chewie/src/models/subtitle_model.dart' as subtitle_model1;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_subtitle/flutter_subtitle.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../core/constants/app_url.dart';
+import '../../../../core/shared_components/widgets/custom_loader.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/assets.dart';
 import '../../../../core/utils/global_config.dart';
@@ -29,7 +34,9 @@ class VideoPlayerPage extends StatefulWidget {
 
 class _VideoPlayerPageState extends State<VideoPlayerPage> {
   VideoPlayerController? _videoPlayerController;
-  late ChewieController _chewieController;
+  ChewieController? _chewieController;
+  SubtitleController? _subtitleController;
+
   late LibraryBloc _bloc;
 
   int? _lastSentSecond; // The last second for which progress was sent
@@ -42,6 +49,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     super.initState();
 
     _bloc = getIt<LibraryBloc>();
+
+    _bloc.add(GetSubtitle(folder: widget.file));
 
     _initializeVideoPlayer();
   }
@@ -90,13 +99,54 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       looping: true,
       showControls: true,
       allowFullScreen: true,
+      // fullScreenByDefault: true,
       allowMuting: true,
+      // customControls: CustomControls(),
+
+      allowPlaybackSpeedChanging: true,
+      deviceOrientationsAfterFullScreen: [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeRight
+      ],
+      deviceOrientationsOnEnterFullScreen: [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeRight
+      ],
       materialProgressColors: ChewieProgressColors(
         playedColor: AppColors.primary500Color,
         bufferedColor: AppColors.primary300Color,
         backgroundColor: AppColors.neutral300Color,
       ),
+      subtitleBuilder: (context, subtitle) {
+        return IgnorePointer(
+          child: SubtitleView(
+            text: subtitle,
+            subtitleStyle: SubtitleStyle(
+              fontSize: _chewieController!.isFullScreen ? 20 : 16,
+            ),
+          ),
+        );
+      },
     );
+
+    if (_subtitleController != null) {
+      _chewieController?.setSubtitle(
+        _subtitleController!.subtitles
+            .map(
+              (e) => subtitle_model1.Subtitle(
+                index: e.number,
+                start: Duration(milliseconds: e.start),
+                end: Duration(milliseconds: e.end),
+                text: e.text,
+              ),
+            )
+            .toList(),
+      );
+    }
   }
 
   void _seekToSavedProgress() {
@@ -165,76 +215,136 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   @override
   void dispose() {
     super.dispose();
-    _videoPlayerController!.dispose();
-    _chewieController.dispose();
+    _videoPlayerController?.dispose();
+    _chewieController?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 105.h,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
+    return BlocListener<LibraryBloc, LibraryState>(
+      bloc: _bloc,
+      listenWhen: (previous, current) => current is GetSubtitleSucceedState,
+      listener: (context, state) {
+        if (state is GetSubtitleSucceedState) {
+          _subtitleController = SubtitleController.string(state.subtitle,
+              format: SubtitleFormat.srt);
+
+          if (_chewieController != null) {
+            _chewieController?.setSubtitle(
+              _subtitleController!.subtitles
+                  .map(
+                    (e) => subtitle_model1.Subtitle(
+                      index: e.number,
+                      start: Duration(milliseconds: e.start),
+                      end: Duration(milliseconds: e.end),
+                      text: e.text,
+                    ),
+                  )
+                  .toList(),
+            );
+          }
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    height: 105.h,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
                     ),
                   ),
-                ),
-                Positioned.fill(
-                  child: SvgPicture.asset(
-                    Assets.background,
-                    fit: BoxFit.cover,
+                  Positioned.fill(
+                    child: SvgPicture.asset(
+                      Assets.background,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    children: [
-                      SizedBox(width: 20.w),
-                      IconButton(
-                        color: AppColors.whiteColor,
-                        icon: const Icon(Icons.arrow_back_ios),
-                        iconSize: 18.w,
-                        onPressed: () {
-                          context.router.maybePop();
-                        },
-                      ),
-                      Text(
-                        widget.file.name ?? '',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                              color: AppColors.whiteColor,
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w400,
-                            ),
-                      ),
-                    ],
+                  Positioned(
+                    bottom: 10,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      children: [
+                        SizedBox(width: 20.w),
+                        IconButton(
+                          color: AppColors.whiteColor,
+                          icon: const Icon(Icons.arrow_back_ios),
+                          iconSize: 18.w,
+                          onPressed: () {
+                            context.router.maybePop();
+                          },
+                        ),
+                        Text(
+                          widget.file.name ?? '',
+                          style:
+                              Theme.of(context).textTheme.titleLarge!.copyWith(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 20.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: Center(
-                child: (_videoPlayerController != null &&
-                        _videoPlayerController!.value.isInitialized &&
-                        _chewieController
-                            .videoPlayerController.value.isInitialized)
-                    ? Chewie(controller: _chewieController)
-                    : CircularProgressIndicator(),
+                ],
               ),
-            ),
-          ],
+              Expanded(
+                child: Center(
+                  child: (_videoPlayerController != null &&
+                          _videoPlayerController!.value.isInitialized &&
+                          _chewieController!
+                              .videoPlayerController.value.isInitialized)
+                      ? Chewie(controller: _chewieController!)
+                      : const CustomLoader(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+class CustomControls extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black.withOpacity(0.5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(Icons.replay_10, color: Colors.white),
+            onPressed: () => ChewieController.of(context).seekTo(
+              Duration(seconds: ChewieController.of(context).videoPlayerController.value.position.inSeconds - 10),
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              ChewieController.of(context).isPlaying
+                  ? Icons.pause
+                  : Icons.play_arrow,
+              color: Colors.white,
+            ),
+            onPressed: () => ChewieController.of(context).togglePause(),
+          ),
+          IconButton(
+            icon: Icon(Icons.forward_10, color: Colors.white),
+            onPressed: () => ChewieController.of(context).seekTo(
+              Duration(seconds: ChewieController.of(context).videoPlayerController.value.position.inSeconds + 10),
+            ),
+          ),
+        ],
+      ),
+    );
+  }}

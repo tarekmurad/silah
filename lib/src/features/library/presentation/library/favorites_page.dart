@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:boilerplate_flutter/src/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:silah_connect/src/injection_container.dart';
 
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/shared_components/widgets/custom_loader.dart';
@@ -206,22 +206,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                     );
                                 }
                               },
-                              onDownloadTab: (file) async {
-                                if (await Permission.storage
-                                        .request()
-                                        .isGranted ||
-                                    await Permission
-                                        .manageExternalStorage.isGranted ||
-                                    await Permission.mediaLibrary
-                                        .request()
-                                        .isGranted) {
-                                  _bloc.add(DownloadFile(file: file));
-                                } else {
-                                  print('Permission denied');
-                                }
-                              },
+
                               isDownloadItem: false,
-                              onFavoritesTab: (Folder, bool) {},
                             ),
                           );
                         }

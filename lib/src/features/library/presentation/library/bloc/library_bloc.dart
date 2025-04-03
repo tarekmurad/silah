@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:hive/hive.dart';
 
+import '../../../../../core/constants/app_url.dart';
 import '../../../data/models/folder.dart';
 import '../../../data/repositories/library_repository_impl.dart';
 import 'bloc.dart';
@@ -16,6 +17,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     on<GetDownloadsList>(_onGetDownloadsList);
     on<GetFavoritesList>(_onGetFavoritesList);
     on<InteractFavorites>(_onInteractFavorites);
+    on<GetSubtitle>(_onGetSubtitle);
   }
 
   Future<void> _onGetLibrary(
@@ -136,6 +138,29 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       emit(InteractFavoritesSucceedState());
     } else if (result.hasErrorOnly) {
       emit(InteractFavoritesFailedState());
+    }
+    // } catch (e) {
+    //   emit(GetLibraryFailedState());
+    // }
+  }
+
+  Future<void> _onGetSubtitle(
+    GetSubtitle event,
+    Emitter<LibraryState> emit,
+  ) async {
+    emit(InteractFavoritesLoadingState());
+
+    // try {
+
+    var s =
+        '${AppUrl.baseUrl}/media/${event.folder.path}/${event.folder.id}/${event.folder.mediaFiles?[1].id}.${event.folder.mediaFiles?[1].extension}';
+
+    final result = await libraryRepository.getSubtitle(s);
+
+    if (result.hasDataOnly) {
+      emit(GetSubtitleSucceedState(subtitle: result.data!));
+    } else if (result.hasErrorOnly) {
+      emit(GetSubtitleFailedState());
     }
     // } catch (e) {
     //   emit(GetLibraryFailedState());
