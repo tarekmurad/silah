@@ -119,6 +119,17 @@ class AuthRepositoryImpl {
     }
   }
 
+  Future<Result<BaseError, dynamic>> changePassword(
+      String oldPassword, String password) async {
+    final response =
+        await _authenticationDataSource.changePassword(oldPassword, password);
+    if (response!.isRight()) {
+      return Result(data: (response as Right<BaseError, dynamic>).value);
+    } else {
+      return Result(error: (response as Left<BaseError, dynamic>).value);
+    }
+  }
+
   Future<Result<BaseError, dynamic>> updateFirebaseToken(
       UpdateFirebaseTokenParam updateFirebaseTokenParam) async {
     final remote = await _authenticationDataSource
@@ -141,15 +152,15 @@ class AuthRepositoryImpl {
     }
   }
 
-// Future<Result<BaseError, dynamic>> logout(LogoutParam logoutParam) async {
-//   final remote = await _authenticationDataSource.logout(logoutParam);
-//
-//   if (remote!.isRight()) {
-//     return Result(data: (remote as Right<BaseError, dynamic>).value);
-//   } else {
-//     return Result(error: (remote as Left<BaseError, dynamic>).value);
-//   }
-// }
+  Future<Result<BaseError, dynamic>> logout(String deviceId) async {
+    final remote = await _authenticationDataSource.logout(deviceId);
+
+    if (remote!.isRight()) {
+      return Result(data: (remote as Right<BaseError, dynamic>).value);
+    } else {
+      return Result(error: (remote as Left<BaseError, dynamic>).value);
+    }
+  }
 //
 // Future<Result<BaseError, dynamic>> register(
 //     RegisterParam registerParam) async {

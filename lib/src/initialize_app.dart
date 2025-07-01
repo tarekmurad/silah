@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:no_screenshot/no_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'core/utils/firebase_notifications.dart';
@@ -40,7 +41,6 @@ class InitializeApp {
       androidNotificationChannelId: 'com.kabdev.storagebud.audio',
       androidNotificationChannelName: 'Audio playback',
       androidNotificationOngoing: true,
-
     );
 
     /// downloads
@@ -56,12 +56,16 @@ class InitializeApp {
     /// load our config
     await GlobalConfig.forEnvironment(env);
 
+    final _noScreenshot = NoScreenshot.instance;
+    bool result = await _noScreenshot.screenshotOff();
+    debugPrint('Screenshot Off: $result');
+
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
 
-    // SystemChrome.setPreferredOrientations([
-    //   DeviceOrientation.portraitUp,
-    //   DeviceOrientation.portraitDown,
-    // ]);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 }

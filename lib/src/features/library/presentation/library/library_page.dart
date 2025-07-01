@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:silah_connect/src/injection_container.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/shared_components/widgets/custom_loader.dart';
@@ -43,7 +44,7 @@ class _LibraryPageState extends State<LibraryPage> {
     _bloc = getIt<LibraryBloc>();
     _scaffoldKey = GlobalKey<ScaffoldState>();
 
-    _bloc.add(GetLibrary(parentId: widget.folderId));
+    // _bloc.add(GetLibrary(parentId: widget.folderId));
   }
 
   @override
@@ -54,50 +55,58 @@ class _LibraryPageState extends State<LibraryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: AppColors.whiteColor,
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 105.h,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(0),
-                      topRight: Radius.circular(0),
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
+    return VisibilityDetector(
+      key: Key(widget.folderId ?? 'root'),
+      onVisibilityChanged: (visibilityInfo) {
+        var visiblePercentage = visibilityInfo.visibleFraction * 100;
+        if (visiblePercentage == 100) {
+          _bloc.add(GetLibrary(parentId: widget.folderId));
+        }
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: AppColors.whiteColor,
+        body: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    height: 105.h,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryColor,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(0),
+                        topRight: Radius.circular(0),
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
                     ),
                   ),
-                ),
-                Positioned.fill(
-                  child: SvgPicture.asset(
-                    Assets.background,
-                    fit: BoxFit.cover,
+                  Positioned.fill(
+                    child: SvgPicture.asset(
+                      Assets.background,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                Positioned(
-                  bottom: 20,
-                  left: 0,
-                  right: 0,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(width: 20.w),
-                              if (widget.folderId != null)
+                  Positioned(
+                    bottom: 20,
+                    left: 0,
+                    right: 0,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(width: 20.w),
+                                // if (widget.folderId != null)
                                 SizedBox(
-                                  width: 18.w,
-                                  height: 18.w,
+                                  width: 30.w,
+                                  height: 30.w,
                                   child: GestureDetector(
                                     onTap: () {
                                       context.router.maybePop();
@@ -105,197 +114,197 @@ class _LibraryPageState extends State<LibraryPage> {
                                     child: Icon(
                                       Icons.arrow_back_ios,
                                       color: AppColors.whiteColor,
-                                      size: 18.w,
+                                      size: 20.w,
                                     ),
                                   ),
                                 )
-                              else
-                                SizedBox(
-                                  width: 18.w,
-                                  height: 18.w,
+                                // else
+                                //   SizedBox(
+                                //     width: 18.w,
+                                //     height: 18.w,
+                                //   ),
+                              ],
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  widget.folderName ?? "Library",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .copyWith(
+                                        color: AppColors.whiteColor,
+                                        fontSize: 18.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
-                            ],
-                          ),
-                          Expanded(
-                            child: Center(
-                              child: Text(
-                                widget.folderName ?? "Library",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(
-                                      color: AppColors.whiteColor,
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
                               ),
                             ),
-                          ),
-                          SizedBox(width: 38.w),
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  if (widget.folderId == null)
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: SizedBox(
-                        height: Dimens.buttonHeight,
-                        child: TextField(
-                          onChanged: (query) {
-                            if (query == _lastQuery) return;
-                            _lastQuery = query;
+                            SizedBox(width: 50.w),
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 20.h,
+                    ),
+                    if (widget.folderId == null)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        child: SizedBox(
+                          height: Dimens.buttonHeight,
+                          child: TextField(
+                            onChanged: (query) {
+                              if (query == _lastQuery) return;
+                              _lastQuery = query;
 
-                            if (query.isEmpty) {
-                              _debounce?.cancel();
-                              _bloc.add(GetLibrary(parentId: null));
-                            } else {
-                              if (_debounce?.isActive ?? false) {
-                                _debounce!.cancel();
+                              if (query.isEmpty) {
+                                _debounce?.cancel();
+                                _bloc.add(GetLibrary(parentId: null));
+                              } else {
+                                if (_debounce?.isActive ?? false) {
+                                  _debounce!.cancel();
+                                }
+
+                                _debounce = Timer(
+                                    const Duration(milliseconds: 500), () {
+                                  _bloc.add(SearchLibrary(searchText: query));
+                                });
                               }
-
-                              _debounce =
-                                  Timer(const Duration(milliseconds: 500), () {
-                                _bloc.add(SearchLibrary(searchText: query));
-                              });
-                            }
-                          },
-                          style:
-                              Theme.of(context).textTheme.labelLarge!.copyWith(
-                                    color: AppColors.primaryColor,
-                                    fontSize: 14.sp,
-                                  ),
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            hintText: 'Search',
-                            prefixIcon: Icon(Icons.search),
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16.w, vertical: 16.h),
-                            fillColor: Colors.transparent,
-                            filled: true,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(Dimens.widgetRadius),
-                              ),
-                              borderSide: BorderSide(
-                                color: AppColors.primary300Color,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(Dimens.widgetRadius),
-                              ),
-                              borderSide: BorderSide(
-                                color: AppColors.primaryColor,
-                              ),
-                            ),
-                            hintStyle: Theme.of(context)
+                            },
+                            style: Theme.of(context)
                                 .textTheme
                                 .labelLarge!
                                 .copyWith(
-                                  color: AppColors.primary300Color,
+                                  color: AppColors.primaryColor,
                                   fontSize: 14.sp,
                                 ),
+                            textInputAction: TextInputAction.search,
+                            decoration: InputDecoration(
+                              hintText: 'Search',
+                              prefixIcon: Icon(Icons.search),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16.w, vertical: 16.h),
+                              fillColor: Colors.transparent,
+                              filled: true,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(Dimens.widgetRadius),
+                                ),
+                                borderSide: BorderSide(
+                                  color: AppColors.primary300Color,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(Dimens.widgetRadius),
+                                ),
+                                borderSide: BorderSide(
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge!
+                                  .copyWith(
+                                    color: AppColors.primary300Color,
+                                    fontSize: 14.sp,
+                                  ),
+                            ),
                           ),
                         ),
                       ),
+                    SizedBox(
+                      height: 10.h,
                     ),
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  BlocBuilder<LibraryBloc, LibraryState>(
-                    bloc: _bloc,
-                    buildWhen: (previous, current) {
-                      if (current is GetLibraryLoadingState ||
-                          current is GetLibrarySucceedState ||
-                          current is GetLibraryFailedState) {
-                        return true;
-                      } else {
-                        return false;
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is GetLibraryLoadingState) {
-                        return Expanded(
-                          child: Center(
-                            child: CustomLoader(
-                              color: AppColors.primaryColor,
-                              size: 30.w,
-                            ),
-                          ),
-                        );
-                      } else if (state is GetLibrarySucceedState) {
-                        if (state.folders.isEmpty) {
+                    BlocBuilder<LibraryBloc, LibraryState>(
+                      bloc: _bloc,
+                      buildWhen: (previous, current) {
+                        if (current is GetLibraryLoadingState ||
+                            current is GetLibrarySucceedState ||
+                            current is GetLibraryFailedState) {
+                          return true;
+                        } else {
+                          return false;
+                        }
+                      },
+                      builder: (context, state) {
+                        if (state is GetLibraryLoadingState) {
                           return Expanded(
                             child: Center(
-                              child: Text(
-                                'No matches found!',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(
-                                      color: AppColors.neutral300Color,
-                                      fontSize: 15.sp,
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                              child: CustomLoader(
+                                color: AppColors.primaryColor,
+                                size: 30.w,
                               ),
                             ),
                           );
-                        } else {
-                          return Expanded(
-                            child: Platform.isIOS
-                                ? CustomScrollView(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    slivers: [
-                                      CupertinoSliverRefreshControl(
-                                        onRefresh: () async {
-                                          _bloc.add(GetLibrary(
-                                              parentId: widget.folderId));
-                                        },
+                        } else if (state is GetLibrarySucceedState) {
+                          if (state.folders.isEmpty) {
+                            return Expanded(
+                              child: Center(
+                                child: Text(
+                                  'No matches found!',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .copyWith(
+                                        color: AppColors.neutral300Color,
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w400,
                                       ),
-                                      SliverToBoxAdapter(
-                                        child: buildList(state),
-                                      ),
-                                    ],
-                                  )
-                                : RefreshIndicator(
-                                    onRefresh: () async {
-                                      _bloc.add(GetLibrary(
-                                          parentId: widget.folderId));
-                                    },
-                                    color: AppColors.primaryColor,
-                                    child: SingleChildScrollView(
+                                ),
+                              ),
+                            );
+                          } else {
+                            return Expanded(
+                              child: Platform.isIOS
+                                  ? CustomScrollView(
                                       physics:
                                           const AlwaysScrollableScrollPhysics(),
-                                      child: buildList(state),
+                                      slivers: [
+                                        CupertinoSliverRefreshControl(
+                                          onRefresh: () async {
+                                            _bloc.add(GetLibrary(
+                                                parentId: widget.folderId));
+                                          },
+                                        ),
+                                        SliverToBoxAdapter(
+                                          child: buildList(state),
+                                        ),
+                                      ],
+                                    )
+                                  : RefreshIndicator(
+                                      onRefresh: () async {
+                                        _bloc.add(GetLibrary(
+                                            parentId: widget.folderId));
+                                      },
+                                      color: AppColors.primaryColor,
+                                      child: SingleChildScrollView(
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                        child: buildList(state),
+                                      ),
                                     ),
-                                  ),
-                          );
+                            );
+                          }
+                        } else {
+                          return const SizedBox();
                         }
-                      } else {
-                        return const SizedBox();
-                      }
-                    },
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                ],
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

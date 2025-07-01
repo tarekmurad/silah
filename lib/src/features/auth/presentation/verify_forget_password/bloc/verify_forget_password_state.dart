@@ -8,4 +8,10 @@ class VerifyAccountLoadingState extends VerificationState {}
 
 class VerifyAccountSucceedState extends VerificationState {}
 
-class VerifyAccountFailedState extends VerificationState {}
+class VerifyAccountFailedState extends VerificationState {
+  final String? message;
+
+  VerifyAccountFailedState({
+    this.message,
+  });
+}

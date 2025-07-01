@@ -110,10 +110,19 @@ class HttpHelper {
           );
           return;
         } else if (error.response?.statusCode == 406) {
-          getIt<AppRouter>().pushAndPopUntil(
-            AdminApprovalRoute(newAccount: false),
-            predicate: (_) => false,
-          );
+          var data = json.decode(error.response?.data as String)
+              as Map<String, dynamic>;
+          if (data["message"] == 'NeedUpdate') {
+            getIt<AppRouter>().pushAndPopUntil(
+              const UpdateRoute(),
+              predicate: (_) => false,
+            );
+          } else {
+            getIt<AppRouter>().pushAndPopUntil(
+              AdminApprovalRoute(newAccount: false),
+              predicate: (_) => false,
+            );
+          }
           return;
         }
         return handler.next(error);
@@ -418,7 +427,8 @@ class HttpHelper {
     final response = error.response?.data != null
         ? json.decode(error.response?.data as String) as Map<String, dynamic>
         : null;
-    final details = response?['details'][0] != null ? response!['details'][0] : null;
+    final details =
+        response?['details'][0] != null ? response!['details'][0] : null;
     final message = response?['message'];
 
     switch (error.type) {

@@ -35,6 +35,8 @@
 	<string>This app requires microphone access to provide audio-related features.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSFileProtectionComplete</key>
+    <string>NSFileProtectionCompleteUntilFirstUserAuthentication</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
@@ -47,16 +49,20 @@
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
+		 <string>UIInterfaceOrientationPortrait</string>
+         <string>UIInterfaceOrientationLandscapeLeft</string>
+         <string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+        <key>NSAllowsArbitraryLoadsForMedia</key>
+        <true/>
+        <key>NSAllowsArbitraryLoadsInWebContent</key>
+        <true/>
+        <key>NSRequiresCertificateTransparency</key>
+        <true/>
+    </dict>
 </dict>
 </plist>

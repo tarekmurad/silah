@@ -59,7 +59,7 @@ class _VerifyForgetPasswordPageState extends State<VerifyForgetPasswordPage> {
         leading: IconButton(
           color: AppColors.primaryColor,
           icon: const Icon(Icons.arrow_back_ios),
-          iconSize: 18.w,
+          iconSize: 20.w,
           onPressed: () {
             context.router.maybePop();
           },
@@ -156,7 +156,7 @@ class _VerifyForgetPasswordPageState extends State<VerifyForgetPasswordPage> {
                         if (state is VerifyAccountFailedState) {
                           showSnackBar(
                             context,
-                            'Verify Account is Failed',
+                            state.message ?? 'Verify Account is Failed',
                             AppColors.warningColor,
                           );
                         } else if (state is VerifyAccountSucceedState) {

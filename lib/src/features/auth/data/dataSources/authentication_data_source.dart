@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
 
@@ -78,13 +79,10 @@ class AuthenticationDataSourceImpl {
       withAuthentication: false,
     );
 
-    if (response!.isRight()) {
-      AuthenticationModel authentication = AuthenticationModel.fromJson(
-          (response as Right<BaseError, dynamic>).value.data!);
-      return Right(authentication);
-    } else {
-      return response as Left<BaseError, AuthenticationModel>;
-    }
+    return response!.fold(
+      (error) => Left(error),
+      (data) => Right(AuthenticationModel.fromJson(data.data!)),
+    );
   }
 
   Future<Either<BaseError, AuthenticationModel>>? verifyForgetPassword(
@@ -125,6 +123,26 @@ class AuthenticationDataSourceImpl {
     }
   }
 
+  Future<Either<BaseError, AuthenticationModel>>? changePassword(
+      String oldPassword, String password) async {
+    final response = await _httpHelper.postRequest(
+      EndpointUrl.changePasswordUrl,
+      withAuthentication: true,
+      data: {
+        'oldPassword': oldPassword,
+        'newPassword': password,
+      },
+    );
+
+    if (response!.isRight()) {
+      AuthenticationModel authentication = AuthenticationModel.fromJson(
+          (response as Right<BaseError, dynamic>).value.data!);
+      return Right(authentication);
+    } else {
+      return response as Left<BaseError, AuthenticationModel>;
+    }
+  }
+
   Future<Either<BaseError, UserModel>?> getUserInfo() async {
     final response = await _httpHelper.getRequest(
       EndpointUrl.getUserInfoUrl,
@@ -133,6 +151,20 @@ class AuthenticationDataSourceImpl {
     return response!.fold(
       (error) => Left(error),
       (data) => Right(UserModel.fromJson(data.data!['me'])),
+    );
+  }
+
+  Future<Either<BaseError, dynamic>?> logout(String deviceId) async {
+    final response = await _httpHelper.postRequest(
+      EndpointUrl.logoutUrl,
+      withAuthentication: true,
+      rawDataString: jsonEncode({
+        'deviceId': deviceId,
+      }),
+    );
+    return response!.fold(
+      (error) => Left(error),
+      (data) => Right(data),
     );
   }
 

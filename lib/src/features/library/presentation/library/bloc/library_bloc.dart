@@ -8,9 +8,11 @@ import 'bloc.dart';
 
 class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   LibraryRepositoryImpl libraryRepository;
+  List<Folder>? notificationsList;
 
   LibraryBloc(this.libraryRepository) : super(InitialLibraryState()) {
     on<GetLibrary>(_onGetLibrary);
+    on<GetLibraryCategory>(_onGetLibraryCategory);
     on<SearchLibrary>(_onSearchLibrary);
     on<UpdateProgress>(_onUpdateProgress);
     on<DownloadFile>(_onDownloadFile);
@@ -33,6 +35,32 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       emit(GetLibrarySucceedState(folders: result.data!.folders!));
     } else if (result.hasErrorOnly) {
       emit(GetLibraryFailedState());
+    }
+    // } catch (e) {
+    //   emit(GetLibraryFailedState());
+    // }
+  }
+
+  Future<void> _onGetLibraryCategory(
+    GetLibraryCategory event,
+    Emitter<LibraryState> emit,
+  ) async {
+    if (event.currentPage == 1) emit(GetLibraryCategoryLoadingState());
+
+    // try {
+    final result = await libraryRepository.getLibraryCategory(
+        event.type!.toUpperCase(), event.currentPage);
+
+    if (result.hasDataOnly) {
+      if (event.currentPage == 1) {
+        notificationsList = [];
+      }
+
+      notificationsList?.addAll(result.data!.folders! ?? []);
+
+      emit(GetLibraryCategorySucceedState(folders: notificationsList!));
+    } else if (result.hasErrorOnly) {
+      emit(GetLibraryCategoryFailedState());
     }
     // } catch (e) {
     //   emit(GetLibraryFailedState());

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:silah_connect/src/injection_container.dart';
 
 import '../../../../core/navigation/app_router.dart';
@@ -89,8 +88,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                             children: [
                               SizedBox(width: 20.w),
                               SizedBox(
-                                width: 18.w,
-                                height: 18.w,
+                                width: 30.w,
+                                height: 30.w,
                                 child: GestureDetector(
                                   onTap: () {
                                     context.router.maybePop();
@@ -98,7 +97,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                   child: Icon(
                                     Icons.arrow_back_ios,
                                     color: AppColors.whiteColor,
-                                    size: 18.w,
+                                    size: 20.w,
                                   ),
                                 ),
                               )
@@ -119,7 +118,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 38.w),
+                          SizedBox(width: 50.w),
                         ],
                       )
                     ],
@@ -206,7 +205,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                     );
                                 }
                               },
-
                               isDownloadItem: false,
                             ),
                           );

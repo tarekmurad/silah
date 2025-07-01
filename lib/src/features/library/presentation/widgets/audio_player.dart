@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
@@ -12,24 +14,44 @@ import '../../../../core/constants/app_url.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/assets.dart';
 import '../../../../core/utils/global_config.dart';
+import '../../../../core/utils/helpers.dart';
 import '../../../../injection_container.dart';
 import '../../data/models/folder.dart';
+import '../../data/models/media_file.dart';
 import '../library/bloc/bloc.dart';
 
-class AudioService {
+class AudioService with WidgetsBindingObserver {
   static final AudioService _instance = AudioService._internal();
 
   factory AudioService() => _instance;
 
   late AudioPlayer audioPlayer;
-  bool isInitialized = false;
+  String? currentAudioId;
 
   AudioService._internal() {
     audioPlayer = AudioPlayer();
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      _disposeAudioPlayer();
+    }
+  }
+
+  void _disposeAudioPlayer() {
+    audioPlayer.dispose();
+  }
+
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _disposeAudioPlayer();
   }
 }
 
-final audioService = AudioService();
+var audioService = AudioService();
 
 @RoutePage()
 class AudioPlayerPage extends StatefulWidget {
@@ -52,6 +74,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
   double _playbackSpeed = 1.0;
 
+  MediaFile? image;
+
   @override
   void initState() {
     super.initState();
@@ -59,25 +83,40 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
     _audioPlayer = audioService.audioPlayer;
 
-    if (!audioService.isInitialized) {
+    image = Helper.getPreviewImage(widget.file.mediaFiles!);
+
+    // CHECK if the current audio is different
+    if (audioService.currentAudioId != widget.file.id) {
+      if (audioService.currentAudioId != null) {
+        _stopAndResetPlayer();
+      }
+
       _initializePlayer();
-      _listenToProgress();
-      audioService.isInitialized = true;
+
+      if (audioService.currentAudioId == null) {
+        _startAudioProgressTimer();
+      }
+      audioService.currentAudioId = widget.file.id;
     }
   }
 
+  Future<void> _stopAndResetPlayer() async {
+    await _audioPlayer.stop();
+    await _audioPlayer.seek(Duration.zero);
+  }
+
   Future<void> _initializePlayer() async {
+    final mp3File = Helper.getFirstMp3(widget.file.mediaFiles!);
+
     try {
       String localPath = '';
       if (Platform.isAndroid) {
         final directory = await getExternalStorageDirectory();
-        final fileName =
-            '${widget.file.name}.${widget.file.mediaFiles?[0].extension}';
+        final fileName = '${widget.file.name}.${mp3File?.extension}';
         localPath = '${directory?.path}/$fileName';
       } else if (Platform.isIOS) {
         final directory = await getApplicationDocumentsDirectory();
-        final fileName =
-            '${widget.file.name}.${widget.file.mediaFiles?[0].extension}';
+        final fileName = '${widget.file.name}.${mp3File?.extension}';
         localPath = '${directory.path}/$fileName';
       }
 
@@ -94,10 +133,17 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
           preload: true,
         );
       } else {
+        print(widget.file.mediaFiles?.length);
+        print(widget.file.mediaFiles?[0].id);
+        print(widget.file.mediaFiles?[0].extension);
+        // print(widget.file.mediaFiles?[1].id);
+        // print(widget.file.mediaFiles?[1].extension);
+        print(
+            '${AppUrl.baseUrl}/media/${widget.file.path}/${widget.file.id}/${mp3File?.id}.${mp3File?.extension}');
         await _audioPlayer.setAudioSource(
           AudioSource.uri(
             Uri.parse(
-                '${AppUrl.baseUrl}/media/${widget.file.path}/${widget.file.id}/${widget.file.mediaFiles?[0].id}.${widget.file.mediaFiles?[0].extension}'),
+                '${AppUrl.baseUrl}/media/${widget.file.path}/${widget.file.id}/${mp3File?.id}.${mp3File?.extension}'),
             headers: {
               'Authorization': 'Bearer ${getIt<GlobalConfig>().token}',
               'api-version': getIt<GlobalConfig>().version,
@@ -122,59 +168,140 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                   .round()));
         }
       }
-    } catch (e) {
-      print('Error loading audio: $e');
+    } catch (e, stackTrace) {
+      print('🔴 Error loading audio: $e');
+      print('🧵 Stack trace:\n$stackTrace');
+      print('🔴 Error type: ${e.runtimeType}');
     }
   }
 
-  int? _lastSentSecond;
-  int? _lastSentProgress;
+  Timer? _audioProgressTimer;
+  int? _lastSentAudioSecond;
+  int? _lastSentAudioProgress;
   bool _isAudioInitialized = false;
 
-  void _listenToProgress() {
-    _audioPlayer.positionStream.listen((position) {
-      if (!_audioPlayer.playing)
-        return; // Don't track progress if audio is not playing
+  void _startAudioProgressTimer() {
+    const checkInterval = Duration(seconds: 5);
+
+    _audioProgressTimer?.cancel();
+    _lastSentAudioSecond = -1;
+    _lastSentAudioProgress = -1;
+    _isAudioInitialized = false;
+
+    _audioProgressTimer = Timer.periodic(checkInterval, (timer) {
+      if (!_audioPlayer.playing) return;
 
       final totalDuration = _audioPlayer.duration ?? Duration.zero;
-      final positionInSeconds = position.inSeconds;
+      final currentPosition = _audioPlayer.position;
 
-      // Only proceed if the total duration is valid
-      if (totalDuration.inSeconds > 0) {
-        // Skip the initial progress update if the audio is resumed from a saved position
-        if (!_isAudioInitialized) {
-          _isAudioInitialized = true;
-          return; // Prevent the first progress update when the page is opened/resumed
+      if (totalDuration.inSeconds == 0) return;
+
+      final currentSecond = currentPosition.inSeconds;
+
+      if (!_isAudioInitialized) {
+        _isAudioInitialized = true;
+        return;
+      }
+
+      if (currentSecond == 0) return;
+
+      // Near end → Send 100%
+      if (currentSecond >= totalDuration.inSeconds - 1) {
+        if (_lastSentAudioProgress != 100) {
+          _lastSentAudioProgress = 100;
+          _lastSentAudioSecond = currentSecond;
+          _bloc.add(UpdateProgress(
+            fileId: audioService.currentAudioId!,
+            progress: 100,
+          ));
+          print('[🔁 Sent] Progress: 100% (Completed)');
         }
+        return;
+      }
 
-        // 1. Avoid sending 0% if position is at the start (0 seconds)
-        if (positionInSeconds == 0) return;
+      // Only send last 10-second mark crossed
+      final currentMark = (currentSecond ~/ 10) * 10;
+      final lastMark = (_lastSentAudioSecond ?? -10) ~/ 10 * 10;
 
-        // 2. Check if the position is at the end of the track
-        if (positionInSeconds >= totalDuration.inSeconds - 1) {
-          if (_lastSentProgress != 100) {
-            _lastSentProgress = 100; // Mark progress as 100%
-            _bloc.add(UpdateProgress(fileId: widget.file.id!, progress: 100));
-          }
+      if (currentMark != lastMark) {
+        final progressPercent =
+            ((currentMark / totalDuration.inSeconds) * 100).floor();
+
+        if (progressPercent > 0 && progressPercent != _lastSentAudioProgress) {
+          _lastSentAudioProgress = progressPercent;
+          _lastSentAudioSecond = currentSecond;
+
+          _bloc.add(UpdateProgress(
+            fileId: audioService.currentAudioId!,
+            progress: progressPercent,
+          ));
+
+          print('[🔁 Sent] Progress: $progressPercent% (Mark: $currentMark)');
+        } else {
+          print('[⏳ Skip] Same progress or invalid percent');
         }
-        // 3. Update progress at specific intervals (every 10 seconds)
-        else if (positionInSeconds % 10 == 0 &&
-            positionInSeconds != _lastSentSecond) {
-          _lastSentSecond = positionInSeconds; // Update the last second tracked
-          final progressPercent =
-              ((positionInSeconds / totalDuration.inSeconds) * 100).floor();
-
-          // Avoid sending duplicate progress updates
-          if (progressPercent != _lastSentProgress && progressPercent > 0) {
-            _lastSentProgress =
-                progressPercent; // Update the last sent progress
-            _bloc.add(UpdateProgress(
-                fileId: widget.file.id!, progress: progressPercent));
-          }
-        }
+      } else {
+        print('[⏳ Skip] Still in same 10s mark ($currentMark)');
       }
     });
   }
+
+  void _stopAudioProgressTimer() {
+    _audioProgressTimer?.cancel();
+  }
+
+  // int? _lastSentSecond;
+  // int? _lastSentProgress;
+  // bool _isAudioInitialized = false;
+  //
+  // void _listenToProgress() {
+  //   _audioPlayer.positionStream.listen((position) {
+  //     print(position);
+  //     if (!_audioPlayer.playing) {
+  //       return; // Don't track progress if audio is not playing
+  //     }
+  //
+  //     final totalDuration = _audioPlayer.duration ?? Duration.zero;
+  //     final positionInSeconds = position.inSeconds;
+  //
+  //     // Only proceed if the total duration is valid
+  //     if (totalDuration.inSeconds > 0) {
+  //       // Skip the initial progress update if the audio is resumed from a saved position
+  //       if (!_isAudioInitialized) {
+  //         _isAudioInitialized = true;
+  //         return; // Prevent the first progress update when the page is opened/resumed
+  //       }
+  //
+  //       // 1. Avoid sending 0% if position is at the start (0 seconds)
+  //       if (positionInSeconds == 0) return;
+  //
+  //       // 2. Check if the position is at the end of the track
+  //       if (positionInSeconds >= totalDuration.inSeconds - 1) {
+  //         if (_lastSentProgress != 100) {
+  //           _lastSentProgress = 100; // Mark progress as 100%
+  //           _bloc.add(UpdateProgress(
+  //               fileId: audioService.currentAudioId!, progress: 100));
+  //         }
+  //       }
+  //       // 3. Update progress at specific intervals (every 10 seconds)
+  //       else if (positionInSeconds % 10 == 0 &&
+  //           positionInSeconds != _lastSentSecond) {
+  //         _lastSentSecond = positionInSeconds; // Update the last second tracked
+  //         final progressPercent =
+  //             ((positionInSeconds / totalDuration.inSeconds) * 100).floor();
+  //
+  //         // Avoid sending duplicate progress updates
+  //         if (progressPercent != _lastSentProgress && progressPercent > 0) {
+  //           _lastSentProgress =
+  //               progressPercent; // Update the last sent progress
+  //           _bloc.add(UpdateProgress(
+  //               fileId: audioService.currentAudioId!,
+  //               progress: progressPercent));
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -208,28 +335,46 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                 ),
               ),
               Positioned(
-                bottom: 10,
+                bottom: 20,
                 left: 0,
                 right: 0,
                 child: Row(
                   children: [
-                    SizedBox(width: 20.w),
-                    IconButton(
-                      color: AppColors.whiteColor,
-                      icon: const Icon(Icons.arrow_back_ios),
-                      iconSize: 18.w,
-                      onPressed: () {
-                        context.router.maybePop();
-                      },
-                    ),
-                    Text(
-                      widget.file.name ?? '',
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: AppColors.whiteColor,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w400,
+                    Row(
+                      children: [
+                        SizedBox(width: 20.w),
+                        SizedBox(
+                          width: 30.w,
+                          height: 30.w,
+                          child: GestureDetector(
+                            onTap: () {
+                              context.router.maybePop();
+                            },
+                            child: Icon(
+                              Icons.arrow_back_ios,
+                              color: AppColors.whiteColor,
+                              size: 20.w,
+                            ),
                           ),
+                        )
+                      ],
                     ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          Helper.truncateWithEllipsis(widget.file.name ?? '',
+                              maxLength: 40),
+                          style:
+                              Theme.of(context).textTheme.titleLarge!.copyWith(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 17.sp,
+                                    height: 1,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 50.w),
                   ],
                 ),
               ),
@@ -241,50 +386,86 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
               child: Column(
                 children: [
                   SizedBox(height: 60.h),
-                  Container(
-                    height: 280.w,
-                    width: 280.w,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: AppColors.neutral300Color,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                  if (image != null)
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14.r),
+                      ),
+                      child: Image.network(
+                        '${AppUrl.baseUrl}/media/${widget.file.path}/${widget.file.id}/${image!.id}.${image!.extension}',
+                        height: 280.w,
+                        width: 280.w,
+                        fit: BoxFit.cover,
+                        headers: {
+                          'Authorization':
+                              'Bearer ${getIt<GlobalConfig>().token}',
+                          'api-version': getIt<GlobalConfig>().version,
+                        },
+                      ),
+                    )
+                  else
+                    Container(
+                      height: 280.w,
+                      width: 280.w,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.grey.shade300,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          Assets.audioIcon,
+                          width: 110.w,
+                          height: 110.w,
                         ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.music_note,
-                        size: 140.w,
-                        color: AppColors.primaryColor,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 30.h),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(width: 40.w),
-                        Text(
-                          widget.file.name ?? '',
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(width: 45.w),
+                        Expanded(
+                          child: Text(
+                            widget.file.name ?? '',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              height: 1,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.settings,
-                            size: 24.w,
-                            color: AppColors.primaryColor,
+                        GestureDetector(
+                          onTap: () {
+                            _showSpeedSelector();
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_drop_down_rounded,
+                                size: 24.w,
+                                color: AppColors.primaryColor,
+                              ),
+                              Text(
+                                '${_playbackSpeed}x',
+                                style: TextStyle(
+                                  fontSize: 13.w,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                            ],
                           ),
-                          onPressed: _showSpeedSelector,
                         ),
                       ],
                     ),
@@ -453,7 +634,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                 ],
               ),
             ),
-            SizedBox(height: 10.h),
+            SizedBox(height: 5.h),
             ...[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((speed) {
               return ListTile(
                 title: Row(
@@ -476,15 +657,16 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                     ),
                   ],
                 ),
-                onTap: () {
+                onTap: () async {
                   setState(() {
                     _playbackSpeed = speed;
                   });
+                  await _audioPlayer.setSpeed(speed);
                   Navigator.pop(context);
                 },
               );
             }),
-            SizedBox(height: 10.h),
+            SizedBox(height: 5.h),
           ],
         );
       },

@@ -16,6 +16,8 @@ import 'features/auth/presentation/reset_password/bloc/bloc.dart';
 import 'features/auth/presentation/signup/bloc/bloc.dart';
 import 'features/auth/presentation/verification/bloc/bloc.dart';
 import 'features/auth/presentation/verify_forget_password/bloc/bloc.dart';
+import 'features/auth/presentation/change_password/bloc/bloc.dart'
+    as change_password;
 import 'features/calendar/data/dataSources/calendar_data_source.dart';
 import 'features/calendar/data/repositories/calendar_repository_impl.dart';
 import 'features/calendar/presentation/calendar/bloc/bloc.dart';
@@ -23,6 +25,12 @@ import 'features/home/presentation/bloc/bloc.dart';
 import 'features/library/data/dataSources/library_data_source.dart';
 import 'features/library/data/repositories/library_repository_impl.dart';
 import 'features/library/presentation/library/bloc/bloc.dart';
+import 'features/main/data/dataSources/main_data_source.dart';
+import 'features/main/data/repositories/main_repository_impl.dart';
+import 'features/main/presentation/main/bloc/bloc.dart';
+import 'features/notification/data/dataSources/notification_data_source.dart';
+import 'features/notification/data/repositories/notification_repository_impl.dart';
+import 'features/notification/presentation/notification/bloc/bloc.dart';
 import 'features/profile/data/dataSources/profile_data_source.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/presentation/profile/bloc/bloc.dart';
@@ -96,6 +104,18 @@ void setupLocator() {
     ),
   );
 
+  getIt.registerLazySingleton<MainRepositoryImpl>(
+    () => MainRepositoryImpl(
+      getIt<MainDataSourceImpl>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<NotificationRepositoryImpl>(
+    () => NotificationRepositoryImpl(
+      getIt<NotificationDataSourceImpl>(),
+    ),
+  );
+
   /// Data Sources
   getIt.registerLazySingleton<AuthenticationDataSourceImpl>(
     () => AuthenticationDataSourceImpl(
@@ -127,6 +147,18 @@ void setupLocator() {
     ),
   );
 
+  getIt.registerLazySingleton<MainDataSourceImpl>(
+    () => MainDataSourceImpl(
+      getIt<HttpHelper>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<NotificationDataSourceImpl>(
+    () => NotificationDataSourceImpl(
+      getIt<HttpHelper>(),
+    ),
+  );
+
   /// Bloc
   getIt.registerFactory<SplashBloc>(
     () => SplashBloc(getIt<AuthRepositoryImpl>()),
@@ -137,7 +169,8 @@ void setupLocator() {
   );
 
   getIt.registerFactory<LoginBloc>(
-    () => LoginBloc(getIt<AuthRepositoryImpl>()),
+    () => LoginBloc(
+        getIt<AuthRepositoryImpl>(), getIt<NotificationRepositoryImpl>()),
   );
 
   getIt.registerFactory<SignUpBloc>(
@@ -154,6 +187,10 @@ void setupLocator() {
 
   getIt.registerFactory<VerifyForgetPasswordBloc>(
     () => VerifyForgetPasswordBloc(getIt<AuthRepositoryImpl>()),
+  );
+
+  getIt.registerFactory<change_password.ResetPasswordBloc>(
+    () => change_password.ResetPasswordBloc(getIt<AuthRepositoryImpl>()),
   );
 
   getIt.registerFactory<ResetPasswordBloc>(
@@ -174,5 +211,15 @@ void setupLocator() {
 
   getIt.registerFactory<TodoBloc>(
     () => TodoBloc(getIt<TodoRepositoryImpl>()),
+  );
+
+  getIt.registerFactory<MainBloc>(() => MainBloc(
+      getIt<MainRepositoryImpl>(),
+      getIt<LibraryRepositoryImpl>(),
+      getIt<NotificationRepositoryImpl>(),
+      getIt<CalendarRepositoryImpl>()));
+
+  getIt.registerFactory<NotificationBloc>(
+    () => NotificationBloc(getIt<NotificationRepositoryImpl>()),
   );
 }

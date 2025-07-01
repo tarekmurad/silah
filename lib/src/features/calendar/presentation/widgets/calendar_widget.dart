@@ -90,6 +90,8 @@ class CustomCalendarWidget extends StatelessWidget {
           width: 1.5,
         ),
       ),
+      initialSelectedDate: DateTime.now(),
+      initialDisplayDate: DateTime.now(),
       view: CalendarView.month,
       todayHighlightColor: AppColors.primaryColor,
       cellBorderColor: AppColors.whiteColor,
@@ -139,7 +141,6 @@ class CustomCalendarWidget extends StatelessWidget {
           ),
         ),
         dayFormat: 'EE',
-
         agendaItemHeight: 56.h,
         navigationDirection: MonthNavigationDirection.vertical,
         appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,

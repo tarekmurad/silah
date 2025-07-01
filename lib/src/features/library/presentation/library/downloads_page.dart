@@ -88,8 +88,8 @@ class _DownloadsPageState extends State<DownloadsPage> {
                             children: [
                               SizedBox(width: 20.w),
                               SizedBox(
-                                width: 18.w,
-                                height: 18.w,
+                                width: 30.w,
+                                height: 30.w,
                                 child: GestureDetector(
                                   onTap: () {
                                     context.router.maybePop();
@@ -97,7 +97,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
                                   child: Icon(
                                     Icons.arrow_back_ios,
                                     color: AppColors.whiteColor,
-                                    size: 18.w,
+                                    size: 20.w,
                                   ),
                                 ),
                               )
@@ -118,7 +118,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 38.w),
+                          SizedBox(width: 50.w),
                         ],
                       )
                     ],

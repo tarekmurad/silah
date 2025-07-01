@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,6 +16,7 @@ import '../../../../core/styles/assets.dart';
 import '../../../../core/utils/global_config.dart';
 import '../../../../injection_container.dart';
 import '../../data/models/folder.dart';
+import '../library/bloc/bloc.dart';
 
 @RoutePage()
 class PdfViewerPage extends StatefulWidget {
@@ -27,34 +30,53 @@ class PdfViewerPage extends StatefulWidget {
 }
 
 class _PdfViewerPageState extends State<PdfViewerPage> {
-  final PdfViewerController _pdfViewerController = PdfViewerController();
+  late PdfViewerController _pdfViewerController;
   bool isLoading = true;
   int currentPage = 0;
   int totalPages = 0;
+  Timer? _debounceTimer;
   String? localPath;
+
+  late LibraryBloc _bloc;
+
+  Folder? newFile;
 
   @override
   void initState() {
     super.initState();
 
-    _initializePlayer();
+    newFile = widget.file;
+    _bloc = getIt<LibraryBloc>();
+
+    _pdfViewerController = PdfViewerController();
+
+    // _bloc.add(GetLibrary(parentId: widget.file.id));
+
+    if (widget.isDownloadedFile == true) {
+      _initializeViewer();
+    }
   }
 
-  Future<void> _initializePlayer() async {
-    String localPath = '';
+  @override
+  void dispose() {
+    _pdfViewerController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeViewer() async {
     if (Platform.isAndroid) {
       final directory = await getExternalStorageDirectory();
-      final fileName =
-          '${widget.file.name}.${widget.file.mediaFiles?[0].extension}';
+      final fileName = '${newFile?.name}.${newFile?.mediaFiles?[0].extension}';
+      await Future.delayed(Duration(seconds: 1));
       setState(() {
         localPath = '${directory?.path}/$fileName';
       });
     } else if (Platform.isIOS) {
       final directory = await getApplicationDocumentsDirectory();
-      final fileName =
-          '${widget.file.name}.${widget.file.mediaFiles?[0].extension}';
+      final fileName = '${newFile?.name}.${newFile?.mediaFiles?[0].extension}';
+      await Future.delayed(Duration(seconds: 1));
       setState(() {
-        localPath = '${directory?.path}/$fileName';
+        localPath = '${directory.path}/$fileName';
       });
     }
   }
@@ -84,40 +106,90 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
                 ),
               ),
               Positioned(
-                bottom: 10,
+                bottom: 20,
                 left: 0,
                 right: 0,
                 child: Row(
                   children: [
-                    SizedBox(width: 20.w),
-                    IconButton(
-                      color: AppColors.whiteColor,
-                      icon: const Icon(Icons.arrow_back_ios),
-                      iconSize: 18.w,
-                      onPressed: () {
-                        context.router.maybePop();
-                      },
-                    ),
-                    Text(
-                      widget.file.name ?? '',
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: AppColors.whiteColor,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w400,
+                    Row(
+                      children: [
+                        SizedBox(width: 20.w),
+                        SizedBox(
+                          width: 30.w,
+                          height: 30.w,
+                          child: GestureDetector(
+                            onTap: () {
+                              context.router.maybePop();
+                            },
+                            child: Icon(
+                              Icons.arrow_back_ios,
+                              color: AppColors.whiteColor,
+                              size: 20.w,
+                            ),
                           ),
+                        )
+                      ],
                     ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          widget.file.name ?? '',
+                          style:
+                              Theme.of(context).textTheme.titleLarge!.copyWith(
+                                    color: AppColors.whiteColor,
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 50.w),
                   ],
                 ),
               ),
             ],
           ),
-          Expanded(
-            child: Stack(
-              children: [
-                if (widget.isDownloadedFile == true)
-                  if (localPath != null)
-                    SfPdfViewer.file(
-                      File(localPath!),
+          BlocListener<LibraryBloc, LibraryState>(
+            bloc: _bloc,
+            listener: (context, state) async {
+              if (state is GetLibrarySucceedState) {
+                // newFile = state.folders[0];
+                // _initializePlayer();
+              }
+            },
+            child: Expanded(
+              child: Stack(
+                children: [
+                  if (widget.isDownloadedFile == true)
+                    if (localPath != null)
+                      SfPdfViewer.file(
+                        File(localPath!),
+                        controller: _pdfViewerController,
+                        canShowScrollHead: true,
+                        canShowScrollStatus: true,
+                        enableDoubleTapZooming: true,
+                        onDocumentLoaded: (PdfDocumentLoadedDetails details) {
+                          setState(() {
+                            isLoading = false;
+                            totalPages = details.document.pages.count;
+                          });
+                        },
+                        onPageChanged: (PdfPageChangedDetails details) {
+                          setState(() {
+                            currentPage = details.newPageNumber;
+                          });
+                        },
+                      )
+                    else
+                      const SizedBox()
+                  else
+                    SfPdfViewer.network(
+                      '${AppUrl.baseUrl}/media/${newFile?.path}/${newFile?.id}/${newFile?.mediaFiles?[0].id}.${newFile?.mediaFiles?[0].extension}',
+                      headers: {
+                        'Authorization':
+                            'Bearer ${getIt<GlobalConfig>().token}',
+                        'api-version': getIt<GlobalConfig>().version,
+                      },
                       controller: _pdfViewerController,
                       canShowScrollHead: true,
                       canShowScrollStatus: true,
@@ -127,114 +199,34 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
                           isLoading = false;
                           totalPages = details.document.pages.count;
                         });
+
+                        currentPage =
+                            ((newFile!.progress! / 100) * totalPages).round();
+                        _pdfViewerController.jumpToPage(currentPage - 1);
                       },
                       onPageChanged: (PdfPageChangedDetails details) {
                         setState(() {
                           currentPage = details.newPageNumber;
                         });
+
+                        _debounceTimer?.cancel();
+
+                        _debounceTimer = Timer(const Duration(seconds: 3), () {
+                          final progress =
+                              ((currentPage / totalPages) * 100).round();
+                          _bloc.add(UpdateProgress(
+                              fileId: newFile!.id!, progress: progress));
+                        });
                       },
-                    )
-                  else
-                    SizedBox()
-                else
-                  SfPdfViewer.network(
-                    '${AppUrl.baseUrl}/media/${widget.file.path}/${widget.file.id}/${widget.file.mediaFiles?[0].id}.${widget.file.mediaFiles?[0].extension}',
-                    headers: {
-                      'Authorization': 'Bearer ${getIt<GlobalConfig>().token}',
-                      'api-version': getIt<GlobalConfig>().version,
-                    },
-                    controller: _pdfViewerController,
-                    canShowScrollHead: true,
-                    canShowScrollStatus: true,
-                    enableDoubleTapZooming: true,
-                    onDocumentLoaded: (PdfDocumentLoadedDetails details) {
-                      setState(() {
-                        isLoading = false;
-                        totalPages = details.document.pages.count;
-                      });
-                    },
-                    onPageChanged: (PdfPageChangedDetails details) {
-                      setState(() {
-                        currentPage = details.newPageNumber;
-                      });
-                    },
-                  ),
-                if (isLoading)
-                  const Center(
-                    child: CustomLoader(),
-                  ),
-              ],
+                    ),
+                  if (isLoading)
+                    const Center(
+                      child: CustomLoader(),
+                    ),
+                ],
+              ),
             ),
           ),
-          // Container(
-          //   padding: EdgeInsets.symmetric(vertical: 10.h),
-          //   decoration: const BoxDecoration(
-          //     color: AppColors.primaryColor,
-          //     borderRadius: BorderRadius.only(
-          //       topLeft: Radius.circular(20),
-          //       topRight: Radius.circular(20),
-          //     ),
-          //   ),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //     children: [
-          //       IconButton(
-          //         icon: Icon(Icons.first_page, color: AppColors.whiteColor),
-          //         onPressed: () {
-          //           _pdfViewerController.jumpToPage(1);
-          //         },
-          //       ),
-          //       IconButton(
-          //         icon: Icon(Icons.chevron_left, color: AppColors.whiteColor),
-          //         onPressed: () {
-          //           final prevPage = currentPage > 1 ? currentPage - 1 : 1;
-          //           _pdfViewerController.jumpToPage(prevPage);
-          //         },
-          //       ),
-          //       Column(
-          //         children: [
-          //           Text(
-          //             "Page $currentPage of $totalPages",
-          //             style: TextStyle(
-          //               color: AppColors.whiteColor,
-          //               fontSize: 14.sp,
-          //             ),
-          //           ),
-          //           SizedBox(height: 4.h),
-          //           Container(
-          //             height: 4.h,
-          //             width: 100.w,
-          //             decoration: BoxDecoration(
-          //               color: AppColors.whiteColor.withOpacity(0.3),
-          //               borderRadius: BorderRadius.circular(2),
-          //             ),
-          //             child: FractionallySizedBox(
-          //               widthFactor: (currentPage / totalPages).clamp(0.0, 1.0),
-          //               alignment: Alignment.centerLeft,
-          //               child: Container(
-          //                 color: AppColors.whiteColor,
-          //               ),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //       IconButton(
-          //         icon: Icon(Icons.chevron_right, color: AppColors.whiteColor),
-          //         onPressed: () {
-          //           final nextPage =
-          //               currentPage < totalPages ? currentPage + 1 : totalPages;
-          //           _pdfViewerController.jumpToPage(nextPage);
-          //         },
-          //       ),
-          //       IconButton(
-          //         icon: Icon(Icons.last_page, color: AppColors.whiteColor),
-          //         onPressed: () {
-          //           _pdfViewerController.jumpToPage(totalPages);
-          //         },
-          //       ),
-          //     ],
-          //   ),
-          // ),
         ],
       ),
     );

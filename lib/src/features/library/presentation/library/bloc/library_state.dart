@@ -18,6 +18,20 @@ class GetLibrarySucceedState extends LibraryState {
 
 class GetLibraryFailedState extends LibraryState {}
 
+/// Get Library Category
+
+class GetLibraryCategoryLoadingState extends LibraryState {}
+
+class GetLibraryCategorySucceedState extends LibraryState {
+  final List<Folder> folders;
+
+  GetLibraryCategorySucceedState({
+    required this.folders,
+  });
+}
+
+class GetLibraryCategoryFailedState extends LibraryState {}
+
 /// Search Library
 
 class UpdateProgressLoadingState extends LibraryState {}

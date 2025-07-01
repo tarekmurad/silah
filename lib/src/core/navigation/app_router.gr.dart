@@ -128,6 +128,91 @@ class CalendarRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [CategoriesContentPage]
+class CategoriesContentRoute extends PageRouteInfo<CategoriesContentRouteArgs> {
+  CategoriesContentRoute({
+    String? type,
+    Key? key,
+    List<PageRouteInfo>? children,
+  }) : super(
+          CategoriesContentRoute.name,
+          args: CategoriesContentRouteArgs(
+            type: type,
+            key: key,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'CategoriesContentRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<CategoriesContentRouteArgs>(
+          orElse: () => const CategoriesContentRouteArgs());
+      return CategoriesContentPage(
+        type: args.type,
+        key: args.key,
+      );
+    },
+  );
+}
+
+class CategoriesContentRouteArgs {
+  const CategoriesContentRouteArgs({
+    this.type,
+    this.key,
+  });
+
+  final String? type;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'CategoriesContentRouteArgs{type: $type, key: $key}';
+  }
+}
+
+/// generated route for
+/// [CategoriesPage]
+class CategoriesRoute extends PageRouteInfo<void> {
+  const CategoriesRoute({List<PageRouteInfo>? children})
+      : super(
+          CategoriesRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'CategoriesRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const CategoriesPage();
+    },
+  );
+}
+
+/// generated route for
+/// [ChangePasswordPage]
+class ChangePasswordRoute extends PageRouteInfo<void> {
+  const ChangePasswordRoute({List<PageRouteInfo>? children})
+      : super(
+          ChangePasswordRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ChangePasswordRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ChangePasswordPage();
+    },
+  );
+}
+
+/// generated route for
 /// [DownloadsPage]
 class DownloadsRoute extends PageRouteInfo<void> {
   const DownloadsRoute({List<PageRouteInfo>? children})
@@ -293,6 +378,44 @@ class LoginRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const LoginPage();
+    },
+  );
+}
+
+/// generated route for
+/// [MainPage]
+class MainRoute extends PageRouteInfo<void> {
+  const MainRoute({List<PageRouteInfo>? children})
+      : super(
+          MainRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'MainRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const MainPage();
+    },
+  );
+}
+
+/// generated route for
+/// [NotificationPage]
+class NotificationRoute extends PageRouteInfo<void> {
+  const NotificationRoute({List<PageRouteInfo>? children})
+      : super(
+          NotificationRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'NotificationRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const NotificationPage();
     },
   );
 }
@@ -519,6 +642,25 @@ class TodoRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const TodoPage();
+    },
+  );
+}
+
+/// generated route for
+/// [UpdatePage]
+class UpdateRoute extends PageRouteInfo<void> {
+  const UpdateRoute({List<PageRouteInfo>? children})
+      : super(
+          UpdateRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'UpdateRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const UpdatePage();
     },
   );
 }

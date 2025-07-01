@@ -16,7 +16,13 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
       getIt<GlobalConfig>().token = userToken;
 
       if (userToken.isNotEmpty) {
-        emit(NavigateToHomeScreenState());
+        final result = await _authenticationRepository.getUserInfo();
+        if (result.hasDataOnly) {
+          getIt<GlobalConfig>().currentUser = result.data!;
+          emit(NavigateToHomeScreenState());
+        } else {
+          emit(NavigateToHomeScreenState());
+        }
       } else {
         emit(NavigateToSignUpScreenState());
       }

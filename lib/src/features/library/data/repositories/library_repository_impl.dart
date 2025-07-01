@@ -22,6 +22,16 @@ class LibraryRepositoryImpl {
     }
   }
 
+  Future<Result<BaseError, LibraryItem>> getLibraryCategory(
+      String? type,int currentPage) async {
+    final response = await _libraryDataSource.getLibraryCategory(type,currentPage);
+    if (response!.isRight()) {
+      return Result(data: (response as Right<BaseError, LibraryItem>).value);
+    } else {
+      return Result(error: (response as Left<BaseError, LibraryItem>).value);
+    }
+  }
+
   Future<Result<BaseError, LibraryItem>> searchLibrary(
       String searchText) async {
     final response = await _libraryDataSource.searchLibrary(searchText);
@@ -65,8 +75,7 @@ class LibraryRepositoryImpl {
     }
   }
 
-  Future<Result<BaseError, String>> getSubtitle(
-      String file) async {
+  Future<Result<BaseError, String>> getSubtitle(String file) async {
     final response = await _libraryDataSource.getSubtitle(file);
     if (response!.isRight()) {
       return Result(data: (response as Right<BaseError, String>).value);
@@ -75,4 +84,21 @@ class LibraryRepositoryImpl {
     }
   }
 
+  Future<Result<BaseError, LibraryItem>> getNewContent() async {
+    final response = await _libraryDataSource.getNewContent();
+    if (response!.isRight()) {
+      return Result(data: (response as Right<BaseError, LibraryItem>).value);
+    } else {
+      return Result(error: (response as Left<BaseError, LibraryItem>).value);
+    }
+  }
+
+  Future<Result<BaseError, LibraryItem>> getWatchedHistory() async {
+    final response = await _libraryDataSource.getWatchedHistory();
+    if (response!.isRight()) {
+      return Result(data: (response as Right<BaseError, LibraryItem>).value);
+    } else {
+      return Result(error: (response as Left<BaseError, LibraryItem>).value);
+    }
+  }
 }

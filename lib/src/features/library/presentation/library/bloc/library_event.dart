@@ -10,6 +10,16 @@ class GetLibrary extends LibraryEvent {
   });
 }
 
+class GetLibraryCategory extends LibraryEvent {
+  final String? type;
+  final int currentPage;
+
+  GetLibraryCategory({
+    required this.type,
+    required this.currentPage,
+  });
+}
+
 class SearchLibrary extends LibraryEvent {
   final String searchText;
 
@@ -57,5 +67,3 @@ class GetSubtitle extends LibraryEvent {
     required this.folder,
   });
 }
-
-

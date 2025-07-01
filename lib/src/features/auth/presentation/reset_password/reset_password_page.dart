@@ -73,7 +73,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         leading: IconButton(
           color: AppColors.primaryColor,
           icon: const Icon(Icons.arrow_back_ios),
-          iconSize: 18.w,
+          iconSize: 20.w,
           onPressed: () {
             context.router.maybePop();
           },
@@ -224,7 +224,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         if (state.status.isFailure) {
                           showSnackBar(
                             context,
-                            '',
+                            'Reset Password Failed',
                             AppColors.warningColor,
                           );
                         } else if (state.status.isSuccess) {

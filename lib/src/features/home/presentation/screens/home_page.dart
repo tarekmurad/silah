@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-    _bloc.add(GetUserInfo());
+    // _bloc.add(GetUserInfo());
   }
 
   @override
@@ -53,56 +53,79 @@ class _HomePageState extends State<HomePage> {
         child: child,
       ),
       routes: [
-        const CalendarRoute(),
-        LibraryRoute(),
+        const MainRoute(),
+        CategoriesRoute(),
         const TodoRoute(),
         const ProfileRoute(),
       ],
       bottomNavigationBuilder: (context, tabsRouter) {
         return BottomNavigationBar(
-          backgroundColor: AppColors.primaryColor,
-          currentIndex: tabsRouter.activeIndex,
           onTap: (int index) {
-            tabsRouter.setActiveIndex(index);
+            if (tabsRouter.activeIndex == index) {
+              final currentRouter = tabsRouter
+                  .innerRouterOf<StackRouter>(tabsRouter.current.name);
+              if (currentRouter != null && currentRouter.canPop()) {
+                currentRouter.popUntilRoot();
+              }
+            } else {
+              tabsRouter.setActiveIndex(index);
+            }
           },
           items: [
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(bottom: 6),
-                child: Icon(Icons.calendar_month),
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Icon(
+                  Icons.home_filled,
+                  size: 23.w,
+                ),
               ),
-              label: 'Calendar',
+              label: 'Home',
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: const EdgeInsets.only(bottom: 6),
+                padding: EdgeInsets.only(bottom: 7.h),
                 child: SvgPicture.asset(
                   tabsRouter.activeIndex == 1
                       ? Assets.activeLibNavIcon
                       : Assets.inactiveLibNavIcon,
-                  width: 19.w,
-                  height: 19.w,
+                  width: 18.w,
+                  height: 18.w,
+                  colorFilter: ColorFilter.mode(
+                    tabsRouter.activeIndex == 1
+                        ? AppColors.whiteColor
+                        : AppColors.primary400Color,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
               label: 'Library',
             ),
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(bottom: 6),
-                child: Icon(Icons.list_alt),
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Icon(
+                  Icons.list_alt,
+                  size: 23.w,
+                ),
               ),
-              label: 'To Do List',
+              label: 'To Do',
             ),
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(bottom: 6),
-                child: Icon(Icons.person),
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Icon(
+                  Icons.person,
+                  size: 23.w,
+                ),
               ),
               label: 'Profile',
             ),
           ],
-          selectedItemColor: Colors.white,
-          unselectedItemColor: AppColors.primary500Color,
+          backgroundColor: AppColors.primaryColor,
+          currentIndex: tabsRouter.activeIndex,
+          selectedItemColor: AppColors.whiteColor,
+          unselectedItemColor: AppColors.primary400Color,
           type: BottomNavigationBarType.fixed,
           selectedFontSize: 12.sp,
           unselectedFontSize: 12.sp,

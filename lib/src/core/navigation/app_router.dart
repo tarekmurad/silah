@@ -3,8 +3,10 @@ import 'package:flutter/cupertino.dart';
 
 import '../../features/auth/presentation/forget_password/forget_password_page.dart';
 import '../../features/auth/presentation/login/login_page.dart';
+import '../../features/auth/presentation/change_password/change_password_page.dart';
 import '../../features/auth/presentation/reset_password/reset_password_page.dart';
 import '../../features/auth/presentation/signup/sign_up_page.dart';
+import '../../features/auth/presentation/update_page.dart';
 import '../../features/auth/presentation/verification/admin_approval_page.dart';
 import '../../features/auth/presentation/verification/verification_page.dart';
 import '../../features/auth/presentation/verify_forget_password/verify_forget_password_page.dart';
@@ -12,12 +14,16 @@ import '../../features/auth/presentation/welcome_page.dart';
 import '../../features/calendar/presentation/calendar/calendar_page.dart';
 import '../../features/home/presentation/screens/home_page.dart';
 import '../../features/library/data/models/folder.dart';
+import '../../features/library/presentation/library/categories_content_page.dart';
+import '../../features/library/presentation/library/categories_page.dart';
 import '../../features/library/presentation/library/downloads_page.dart';
 import '../../features/library/presentation/library/favorites_page.dart';
 import '../../features/library/presentation/library/library_page.dart';
 import '../../features/library/presentation/widgets/audio_player.dart';
 import '../../features/library/presentation/widgets/pdf_viewer.dart';
 import '../../features/library/presentation/widgets/video_player.dart';
+import '../../features/main/presentation/main/main_page.dart';
+import '../../features/notification/presentation/notification/notification_page.dart';
 import '../../features/profile/presentation/profile/profile_page.dart';
 import '../../features/splash/screens/splash.dart';
 import '../../features/todo/data/models/todo_model.dart';
@@ -44,6 +50,8 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: VerifyForgetPasswordRoute.page),
     AutoRoute(page: ResetPasswordRoute.page),
     AutoRoute(page: AdminApprovalRoute.page),
+    AutoRoute(page: UpdateRoute.page),
+    AutoRoute(page: ChangePasswordRoute.page),
 
     /// home
     AutoRoute(
@@ -51,8 +59,8 @@ class AppRouter extends RootStackRouter {
       path: '/',
       children: [
         AutoRoute(
-          page: CalendarRoute.page,
-          path: 'calendar',
+          page: MainRoute.page,
+          path: 'main',
         ),
         AutoRoute(
           page: LibraryTabRoute.page,
@@ -61,6 +69,18 @@ class AppRouter extends RootStackRouter {
             CustomRoute(
               path: '',
               page: LibraryRoute.page,
+              transitionsBuilder: TransitionsBuilders.fadeIn,
+              durationInMilliseconds: 200,
+            ),
+            CustomRoute(
+              path: '',
+              page: CategoriesRoute.page,
+              transitionsBuilder: TransitionsBuilders.fadeIn,
+              durationInMilliseconds: 200,
+            ),
+            CustomRoute(
+              path: '',
+              page: CategoriesContentRoute.page,
               transitionsBuilder: TransitionsBuilders.fadeIn,
               durationInMilliseconds: 200,
             ),
@@ -87,6 +107,10 @@ class AppRouter extends RootStackRouter {
 
     /// tasks
     AutoRoute(page: TodoCounterRoute.page),
+
+    AutoRoute(page: CalendarRoute.page),
+
+    AutoRoute(page: NotificationRoute.page),
   ];
 }
 

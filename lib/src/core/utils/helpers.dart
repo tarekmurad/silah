@@ -2,6 +2,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../features/library/data/models/media_file.dart';
+
 class Helper {
   /// Time Parser
   static DateFormat timeParser = DateFormat('HH:mm:ss');
@@ -93,5 +95,46 @@ class Helper {
 
   static Future<String> getAppGUID() async {
     return const Uuid().v4();
+  }
+
+  static MediaFile? getPreviewImage(List<MediaFile> mediaFiles) {
+    final matches = mediaFiles.where((file) => file.type == 'PREVIEWIMAGE');
+    return matches.isNotEmpty ? matches.first : null;
+  }
+
+  static MediaFile? getFirstMp3(List<MediaFile> mediaFiles) {
+    final matches = mediaFiles.where((file) =>
+        file.extension?.toLowerCase() == 'mp3' ||
+        file.extension?.toLowerCase() == 'aac' ||
+        file.extension?.toLowerCase() == 'mpeg' ||
+        file.extension?.toLowerCase() == 'm4a');
+    return matches.isNotEmpty ? matches.first : null;
+  }
+
+  static MediaFile? getFirstMp4(List<MediaFile> mediaFiles) {
+    final matches =
+        mediaFiles.where((file) => file.extension?.toLowerCase() == 'mp4');
+    return matches.isNotEmpty ? matches.first : null;
+  }
+
+  static MediaFile? getFirstSrt(List<MediaFile> mediaFiles) {
+    final matches =
+        mediaFiles.where((file) => file.extension?.toLowerCase() == 'srt');
+    return matches.isNotEmpty ? matches.first : null;
+  }
+
+  static String? capitalizeEachWord(String? input) {
+    if (input == null || input.isEmpty) return input;
+    return input
+        .split(' ')
+        .map((word) => word.isNotEmpty
+            ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+            : '')
+        .join(' ');
+  }
+
+  static String truncateWithEllipsis(String text, {int maxLength = 60}) {
+    if (text.length <= maxLength) return text;
+    return '${text.substring(0, maxLength)}..';
   }
 }

@@ -72,7 +72,7 @@ class _SignUpPageState extends State<SignUpPage> {
         leading: IconButton(
           color: AppColors.primaryColor,
           icon: const Icon(Icons.arrow_back_ios),
-          iconSize: 18.w,
+          iconSize: 20.w,
           onPressed: () {
             context.router.maybePop();
           },
@@ -302,14 +302,16 @@ class _SignUpPageState extends State<SignUpPage> {
                         if (state.status.isFailure) {
                           showSnackBar(
                             context,
-                            '',
+                            'Signup Failed!',
                             AppColors.warningColor,
                           );
                         } else if (state.status.isSuccess) {
-                          context.router.push(VerificationRoute(
-                              name: _nameController.text,
-                              email: _emailController.text,
-                              password: _passwordController.text));
+                          context.router.push(
+                            VerificationRoute(
+                                name: _nameController.text,
+                                email: _emailController.text,
+                                password: _passwordController.text),
+                          );
                         }
                       },
                       child: BlocBuilder<SignUpBloc, SignUpState>(

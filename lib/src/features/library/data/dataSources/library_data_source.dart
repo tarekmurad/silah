@@ -32,6 +32,24 @@ class LibraryDataSourceImpl {
     );
   }
 
+  Future<Either<BaseError, LibraryItem>>? getLibraryCategory(
+      String? folderType, int currentPage) async {
+    final response = await _httpHelper.postRequest(
+      EndpointUrl.getSpecificCategoryUrl,
+      withAuthentication: true,
+      rawDataString: jsonEncode({
+        'folderType': folderType,
+        'page': currentPage,
+        'pageSize': 10,
+      }),
+    );
+
+    return response!.fold(
+      (error) => Left(error),
+      (data) => Right(LibraryItem.fromJson(data.data!)),
+    );
+  }
+
   Future<Either<BaseError, LibraryItem>>? searchLibrary(
       String searchText) async {
     final response = await _httpHelper.postRequest(
@@ -103,17 +121,41 @@ class LibraryDataSourceImpl {
     );
   }
 
-  Future<Either<BaseError, String>>? getSubtitle(
-      String file) async {
+  Future<Either<BaseError, String>>? getSubtitle(String file) async {
     final response = await _httpHelper.getStringResponse(
       file,
       withAuthentication: true,
     );
 
     return response.fold(
-          (error) => Left(error),
-          (data) => Right(data),
+      (error) => Left(error),
+      (data) => Right(data),
     );
   }
 
+  Future<Either<BaseError, LibraryItem>>? getNewContent() async {
+    final response = await _httpHelper.postRequest(
+      EndpointUrl.getRecentlyAddedUrl,
+      withAuthentication: true,
+      rawDataString: jsonEncode({"page": 1, "pageSize": 3}),
+    );
+
+    return response!.fold(
+      (error) => Left(error),
+      (data) => Right(LibraryItem.fromJson(data.data!)),
+    );
+  }
+
+  Future<Either<BaseError, LibraryItem>>? getWatchedHistory() async {
+    final response = await _httpHelper.postRequest(
+      EndpointUrl.getWatchedHistoryUrl,
+      withAuthentication: true,
+      rawDataString: jsonEncode({"page": 1, "pageSize": 3}),
+    );
+
+    return response!.fold(
+      (error) => Left(error),
+      (data) => Right(LibraryItem.fromJson(data.data!)),
+    );
+  }
 }

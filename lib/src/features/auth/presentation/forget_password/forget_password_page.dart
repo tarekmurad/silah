@@ -61,7 +61,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
         leading: IconButton(
           color: AppColors.primaryColor,
           icon: const Icon(Icons.arrow_back_ios),
-          iconSize: 18.w,
+          iconSize: 20.w,
           onPressed: () {
             context.router.maybePop();
           },
@@ -94,7 +94,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                       height: 12.h,
                     ),
                     Text(
-                      "Enter your email address to begin the verification process. A 4-digit code will be sent to your email for account recovery.",
+                      "Enter your email address to begin the verification process. A 6-digit code will be sent to your email for account recovery.",
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
                             color: AppColors.neutral300Color,
                             fontSize: 14.sp,

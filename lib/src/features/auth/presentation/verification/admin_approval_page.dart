@@ -54,7 +54,7 @@ class _AdminApprovalPageState extends State<AdminApprovalPage> {
           leading: IconButton(
             color: AppColors.primaryColor,
             icon: const Icon(Icons.arrow_back_ios),
-            iconSize: 18.w,
+            iconSize: 20.w,
             onPressed: () {
               context.router.replace(const WelcomeRoute());
             },

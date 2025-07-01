@@ -13,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/shared_components/widgets/custom_loader.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/assets.dart';
+import '../../../../core/utils/utils.dart';
 import '../widgets/calendar_widget.dart';
 import 'bloc/bloc.dart';
 
@@ -80,17 +81,46 @@ class _CalendarPageState extends State<CalendarPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Center(
-                        child: Text(
-                          "Calendar",
-                          style:
-                              Theme.of(context).textTheme.titleLarge!.copyWith(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(width: 20.w),
+                              SizedBox(
+                                width: 30.w,
+                                height: 30.w,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    context.router.maybePop();
+                                  },
+                                  child: Icon(
+                                    Icons.arrow_back_ios,
                                     color: AppColors.whiteColor,
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.w600,
+                                    size: 20.w,
                                   ),
-                        ),
-                      ),
+                                ),
+                              )
+                            ],
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                "Calendar",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .copyWith(
+                                      color: AppColors.whiteColor,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 50.w),
+                        ],
+                      )
                     ],
                   ),
                 )
@@ -174,9 +204,10 @@ class _CalendarPageState extends State<CalendarPage> {
                 final Uri url = Uri.parse(zoomLink);
                 await launchUrl(url, mode: LaunchMode.externalApplication);
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text("No link available for this meeting.")),
+                showSnackBar(
+                  context,
+                  'No link available for this meeting.',
+                  AppColors.warningColor,
                 );
               }
             }

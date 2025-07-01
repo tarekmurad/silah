@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 
+import '../../../../../core/data/errors/http_error.dart';
 import '../../../data/repositories/authentication_repository_impl.dart';
 import 'bloc.dart';
 
@@ -23,8 +24,14 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
     if (result.hasDataOnly) {
       emit(VerifyAccountSucceedState());
     } else if (result.hasErrorOnly) {
-      emit(VerifyAccountFailedState());
+      if (result.error is HttpError) {
+        emit(VerifyAccountFailedState(
+            message: (result.error as HttpError).message));
+      } else {
+        emit(VerifyAccountFailedState());
+      }
     }
+
     // } catch (e) {
     //   print(e);
     //   emit(VerifyAccountFailedState());

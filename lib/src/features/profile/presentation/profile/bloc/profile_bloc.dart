@@ -10,12 +10,20 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<Logout>((event, emit) async {
       emit(LogoutLoadingState());
 
-      try {
+      // try {
+      String deviceId = await _authenticationRepository.getAppGUID();
+      final result = await _authenticationRepository.logout(deviceId);
+
+      if (result.hasDataOnly) {
         await _authenticationRepository.clearUserInfo();
+
         emit(LogoutSucceed());
-      } catch (e) {
+      } else if (result.hasErrorOnly) {
         emit(LogoutFailed());
       }
+      // } catch (e) {
+      //   emit(LogoutFailed());
+      // }
     });
   }
 }

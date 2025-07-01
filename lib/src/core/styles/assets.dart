@@ -17,4 +17,9 @@ class Assets {
   static const String blueTexture = "assets/images/blue_texture.png";
   static const String yellowTexture = "assets/images/yellow_text.svg";
   static const String greenTexture = "assets/images/green_texture.svg";
+
+  static const String blue1Texture = "assets/images/1.svg";
+  static const String blue2Texture = "assets/images/2.svg";
+  static const String blue3Texture = "assets/images/3.svg";
+  static const String blue4Texture = "assets/images/4.svg";
 }

@@ -25,7 +25,8 @@ class AppColors {
   static const primary200Color = Color(0xffE2E3FE);
   static const primary300Color = Color(0xffC9CBFD);
   static const primary400Color = Color(0xff989BFB);
-  static const primary500Color = Color(0xff676CF9);
+  static const primary500Color = Color(0xff7378ff);
+  static const primary600Color = Color(0xff4b51ff);
   static const neutral300Color = Color(0xffD1D2D7);
   static const neutral1000Color = Color(0xff131416);
 }

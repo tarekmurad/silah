@@ -11,6 +11,7 @@ import 'core/constants/constants.dart';
 import 'core/navigation/app_router.dart';
 import 'core/styles/app_theme.dart';
 import 'core/utils/global_config.dart';
+import 'features/library/presentation/widgets/audio_player.dart';
 import 'injection_container.dart';
 
 class App extends StatefulWidget {
@@ -27,6 +28,7 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
 
+
     _appRouter = getIt<AppRouter>();
 
     _fetchLocale().then((locale) {
@@ -40,6 +42,12 @@ class _AppState extends State<App> {
         statusBarBrightness: Brightness.dark,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    audioService.dispose();
+    super.dispose();
   }
 
   @override

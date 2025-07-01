@@ -29,7 +29,7 @@ class GlobalConfig {
   String? token;
   UserModel? currentUser;
 
-  String version = '5.4.0';
+  String version = '6.1.6';
 
   static Future<void> forEnvironment(Environment env) async {
     final contents = await rootBundle.loadString(

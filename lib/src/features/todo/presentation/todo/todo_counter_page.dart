@@ -126,8 +126,8 @@ class _TodoCounterPageState extends State<TodoCounterPage> {
                             children: [
                               SizedBox(width: 20.w),
                               SizedBox(
-                                width: 18.w,
-                                height: 18.w,
+                                width: 30.w,
+                                height: 30.w,
                                 child: GestureDetector(
                                   onTap: () {
                                     context.router.maybePop();
@@ -135,7 +135,7 @@ class _TodoCounterPageState extends State<TodoCounterPage> {
                                   child: Icon(
                                     Icons.arrow_back_ios,
                                     color: AppColors.whiteColor,
-                                    size: 18.w,
+                                    size: 20.w,
                                   ),
                                 ),
                               )
@@ -156,7 +156,7 @@ class _TodoCounterPageState extends State<TodoCounterPage> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 38.w),
+                          SizedBox(width: 50.w),
                         ],
                       )
                     ],
@@ -484,7 +484,7 @@ class _TodoCounterPageState extends State<TodoCounterPage> {
                                       value: _currentValue,
                                       minValue: 100,
                                       maxValue: 5000,
-                                      step: 50,
+                                      step: 100,
                                       itemCount: 5,
                                       haptics: true,
                                       onChanged: (value) => setState(() {
